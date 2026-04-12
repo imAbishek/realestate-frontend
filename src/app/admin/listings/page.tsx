@@ -1,0 +1,174 @@
+'use client'
+import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
+import toast from 'react-hot-toast'
+import { adminApi } from '@/lib/api'
+import { formatPrice, timeAgo } from '@/lib/utils'
+import type { PropertyCard } from '@/types'
+import { CheckCircle, XCircle, Star, StarOff, Trash2, Eye, Search } from 'lucide-react'
+
+const STATUS_TABS = ['PENDING_REVIEW','ACTIVE','REJECTED','EXPIRED','ALL'] as const
+type StatusTab = typeof STATUS_TABS[number]
+
+const STATUS_LABEL: Record<StatusTab, string> = {
+  PENDING_REVIEW: 'Pending', ACTIVE: 'Active', REJECTED: 'Rejected', EXPIRED: 'Expired', ALL: 'All',
+}
+const STATUS_BADGE: Record<string, string> = {
+  PENDING_REVIEW: 'bg-amber-50 text-amber-700 border-amber-200',
+  ACTIVE:         'bg-green-50 text-green-700 border-green-200',
+  REJECTED:       'bg-red-50   text-red-700   border-red-200',
+  EXPIRED:        'bg-gray-50  text-gray-500  border-gray-200',
+  DRAFT:          'bg-gray-50  text-gray-500  border-gray-200',
+  SOLD_RENTED:    'bg-brand-50 text-brand-700 border-brand-200',
+}
+
+export default function AdminListingsPage() {
+  const [activeTab, setActiveTab] = useState<StatusTab>('PENDING_REVIEW')
+  const [listings,  setListings]  = useState<(PropertyCard & { status: string; isFeatured: boolean })[]>([])
+  const [loading,   setLoading]   = useState(false)
+  const [page,      setPage]      = useState(0)
+  const [total,     setTotal]     = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [search,    setSearch]    = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const status = activeTab === 'ALL' ? undefined : activeTab
+      const res    = await adminApi.getAllListings(status, page)
+      setListings(res.data.content)
+      setTotal(res.data.totalElements)
+      setTotalPages(res.data.totalPages)
+    } catch { toast.error('Failed to load listings') }
+    finally   { setLoading(false) }
+  }, [activeTab, page])
+
+  useEffect(() => { load() }, [load])
+
+  async function approve(id: string) {
+    try   { await adminApi.approve(id); toast.success('Approved'); load() }
+    catch { toast.error('Failed to approve') }
+  }
+
+  async function reject(id: string) {
+    const reason = prompt('Rejection reason (will be shown to the seller):')
+    if (!reason?.trim()) return
+    try   { await adminApi.reject(id, reason); toast.success('Rejected'); load() }
+    catch { toast.error('Failed to reject') }
+  }
+
+  async function toggleFeatured(id: string, current: boolean) {
+    try   { await adminApi.toggleFeatured(id); toast.success(current ? 'Removed from featured' : 'Marked as featured'); load() }
+    catch { toast.error('Failed to update') }
+  }
+
+  const filtered = search
+    ? listings.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.cityName.toLowerCase().includes(search.toLowerCase()))
+    : listings
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Listings</h1>
+          <p className="text-sm text-gray-400">{total.toLocaleString()} total</p>
+        </div>
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title or city..."
+            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 bg-white w-64" />
+        </div>
+      </div>
+
+      {/* Status tabs */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+        {STATUS_TABS.map(tab => (
+          <button key={tab} onClick={() => { setActiveTab(tab); setPage(0) }}
+            className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors
+              ${activeTab === tab ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+            {STATUS_LABEL[tab]}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        {loading ? (
+          <div className="p-10 text-center text-sm text-gray-400">Loading...</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-10 text-center text-sm text-gray-400">No listings found.</div>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="grid grid-cols-[2fr_1fr_1fr_120px] gap-4 px-5 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+              <span>Property</span><span>Price</span><span>Status</span><span>Actions</span>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {filtered.map(p => (
+                <div key={p.id} className="grid grid-cols-[2fr_1fr_1fr_120px] gap-4 px-5 py-4 items-center hover:bg-gray-50 transition-colors">
+
+                  {/* Property info */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-12 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
+                      {p.primaryImageUrl
+                        ? <img src={p.primaryImageUrl} alt="" className="w-full h-full object-cover" />
+                        : <span className="text-gray-200 text-lg">⌂</span>}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{p.title}</p>
+                      <p className="text-xs text-gray-400">{p.localityName}, {p.cityName} · {timeAgo(p.createdAt)}</p>
+                      {p.isFeatured && <span className="text-xs text-amber-600 font-medium">★ Featured</span>}
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <span className="text-sm font-medium text-brand-600">{formatPrice(p.price, p.priceUnit)}</span>
+
+                  {/* Status badge */}
+                  <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border w-fit ${STATUS_BADGE[p.status] || STATUS_BADGE.DRAFT}`}>
+                    {p.status.replace('_',' ')}
+                  </span>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1">
+                    <Link href={`/admin/listings/${p.id}`}
+                      className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors" title="View">
+                      <Eye size={14} />
+                    </Link>
+                    {p.status === 'PENDING_REVIEW' && (
+                      <>
+                        <button onClick={() => approve(p.id)}
+                          className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Approve">
+                          <CheckCircle size={14} />
+                        </button>
+                        <button onClick={() => reject(p.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
+                          <XCircle size={14} />
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => toggleFeatured(p.id, p.isFeatured)}
+                      className="p-1.5 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors" title="Toggle featured">
+                      {p.isFeatured ? <StarOff size={14} /> : <Star size={14} />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
+              <span className="text-xs text-gray-400">Showing {filtered.length} of {total}</span>
+              <div className="flex gap-2">
+                <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
+                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40">← Prev</button>
+                <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}
+                  className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40">Next →</button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
