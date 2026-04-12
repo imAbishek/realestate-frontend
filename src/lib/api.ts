@@ -2,12 +2,8 @@ import axios from 'axios'
 import { useAuthStore } from '@/store/authStore'
 import type { AuthResponse, LoginRequest, RegisterRequest, PropertyCard, PropertyDetail, SearchParams, Page, City, Locality, InquiryRequest } from '@/types'
 
-// Browser → use relative /api so Next.js rewrites proxy to the backend (avoids CORS)
-// Server  → use the full URL for direct server-to-server calls
 const api = axios.create({
-  baseURL: typeof window !== 'undefined'
-    ? '/api'
-    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
   headers: { 'Content-Type': 'application/json' },
   timeout: 15_000,
 })
@@ -31,7 +27,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = useAuthStore.getState().refreshToken
         if (!refreshToken) throw new Error('no refresh token')
-        const base = typeof window !== 'undefined' ? '/api' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api')
+        const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
         const { data } = await axios.post(`${base}/auth/refresh-token`, { refreshToken })
         useAuthStore.getState().setTokens(data.accessToken, data.refreshToken)
         original.headers.Authorization = `Bearer ${data.accessToken}`
