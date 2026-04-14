@@ -49,7 +49,7 @@ function DonutChart({ active, pending, rejected, total }: { active: number; pend
   )`
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex flex-col sm:flex-row items-center gap-6">
       <div className="relative w-28 h-28 shrink-0">
         <div className="w-28 h-28 rounded-full" style={{ background: gradient }} />
         <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center">

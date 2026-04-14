@@ -61,15 +61,15 @@ export default function AdminUsersPage() {
           <h1 className="text-xl font-semibold text-gray-900">Users</h1>
           <p className="text-sm text-gray-400">{total.toLocaleString()} registered</p>
         </div>
-        <div className="relative">
+        <div className="relative w-full sm:w-64">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or email..."
-            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 bg-white w-64" />
+            className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 bg-white w-full" />
         </div>
       </div>
 
       {/* Role tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto">
         {ROLE_TABS.map(tab => (
           <button key={tab} onClick={() => { setRoleTab(tab); setPage(0) }}
             className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize
@@ -79,64 +79,99 @@ export default function AdminUsersPage() {
         ))}
       </div>
 
-      {/* Table */}
+      {/* Users table */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-[2fr_1fr_80px_80px_80px] gap-4 px-5 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
-          <span>User</span><span>Role</span><span>Verified</span><span>Status</span><span>Actions</span>
-        </div>
-
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Loading...</div>
         ) : filtered.length === 0 ? (
           <div className="p-10 text-center text-sm text-gray-400">No users found.</div>
         ) : (
-          <div className="divide-y divide-gray-50">
-            {filtered.map(u => (
-              <div key={u.id} className="grid grid-cols-[2fr_1fr_80px_80px_80px] gap-4 px-5 py-3.5 items-center hover:bg-gray-50 transition-colors">
-
-                {/* User info */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-sm font-medium shrink-0">
-                    {u.name[0].toUpperCase()}
+          <>
+            {/* Desktop table — hidden below md */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-[2fr_1fr_80px_80px_80px] gap-4 px-5 py-3 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                <span>User</span><span>Role</span><span>Verified</span><span>Status</span><span>Actions</span>
+              </div>
+              <div className="divide-y divide-gray-50">
+                {filtered.map(u => (
+                  <div key={u.id} className="grid grid-cols-[2fr_1fr_80px_80px_80px] gap-4 px-5 py-3.5 items-center hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-sm font-medium shrink-0">
+                        {u.name[0].toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{u.name}</p>
+                        <p className="text-xs text-gray-400 truncate">{u.email}</p>
+                        {u.phone && <p className="text-xs text-gray-400">{u.phone}</p>}
+                      </div>
+                    </div>
+                    <span className={`inline-flex text-xs font-medium px-2.5 py-1 rounded-full border w-fit ${ROLE_BADGE[u.role]}`}>
+                      {u.role.toLowerCase()}
+                    </span>
+                    <span className={`text-xs font-medium ${u.isVerified ? 'text-green-600' : 'text-gray-400'}`}>
+                      {u.isVerified ? '✓ Yes' : '—'}
+                    </span>
+                    <span className={`text-xs font-medium ${u.isActive ? 'text-green-600' : 'text-red-500'}`}>
+                      {u.isActive ? 'Active' : 'Banned'}
+                    </span>
+                    {u.role !== 'ADMIN' ? (
+                      <button onClick={() => toggleBan(u)}
+                        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors
+                          ${u.isActive
+                            ? 'bg-red-50   text-red-600   border-red-200   hover:bg-red-100'
+                            : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>
+                        {u.isActive ? <><ShieldOff size={12} />Ban</> : <><ShieldCheck size={12} />Restore</>}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-300">Protected</span>
+                    )}
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{u.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{u.email}</p>
-                    {u.phone && <p className="text-xs text-gray-400">{u.phone}</p>}
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile card view — hidden on md+ */}
+            <div className="md:hidden divide-y divide-gray-50">
+              {filtered.map(u => (
+                <div key={u.id} className="p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-sm font-medium shrink-0">
+                      {u.name[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-800 truncate">{u.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{u.email}</p>
+                      {u.phone && <p className="text-xs text-gray-400">{u.phone}</p>}
+                    </div>
+                    <span className={`inline-flex text-xs font-medium px-2.5 py-1 rounded-full border shrink-0 ${ROLE_BADGE[u.role]}`}>
+                      {u.role.toLowerCase()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className={u.isVerified ? 'text-green-600' : 'text-gray-400'}>
+                        {u.isVerified ? '✓ Verified' : 'Unverified'}
+                      </span>
+                      <span className={u.isActive ? 'text-green-600' : 'text-red-500'}>
+                        {u.isActive ? 'Active' : 'Banned'}
+                      </span>
+                    </div>
+                    {u.role !== 'ADMIN' ? (
+                      <button onClick={() => toggleBan(u)}
+                        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors
+                          ${u.isActive
+                            ? 'bg-red-50   text-red-600   border-red-200   hover:bg-red-100'
+                            : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>
+                        {u.isActive ? <><ShieldOff size={12} />Ban</> : <><ShieldCheck size={12} />Restore</>}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-300">Protected</span>
+                    )}
                   </div>
                 </div>
-
-                {/* Role */}
-                <span className={`inline-flex text-xs font-medium px-2.5 py-1 rounded-full border w-fit ${ROLE_BADGE[u.role]}`}>
-                  {u.role.toLowerCase()}
-                </span>
-
-                {/* Verified */}
-                <span className={`text-xs font-medium ${u.isVerified ? 'text-green-600' : 'text-gray-400'}`}>
-                  {u.isVerified ? '✓ Yes' : '—'}
-                </span>
-
-                {/* Status */}
-                <span className={`text-xs font-medium ${u.isActive ? 'text-green-600' : 'text-red-500'}`}>
-                  {u.isActive ? 'Active' : 'Banned'}
-                </span>
-
-                {/* Ban toggle */}
-                {u.role !== 'ADMIN' ? (
-                  <button onClick={() => toggleBan(u)}
-                    className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors
-                      ${u.isActive
-                        ? 'bg-red-50   text-red-600   border-red-200   hover:bg-red-100'
-                        : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>
-                    {u.isActive ? <><ShieldOff size={12} />Ban</> : <><ShieldCheck size={12} />Restore</>}
-                  </button>
-                ) : (
-                  <span className="text-xs text-gray-300">Protected</span>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
 
         <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">

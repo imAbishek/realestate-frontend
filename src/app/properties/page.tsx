@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { X } from 'lucide-react'
+import { X, SlidersHorizontal } from 'lucide-react'
 import { propertyApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import SearchBar from '@/components/search/SearchBar'
@@ -134,6 +134,7 @@ function PropertiesContent() {
   const [page,          setPage]          = useState(0)
   const [results,       setResults]       = useState<Page<PropertyCardType> | null>(null)
   const [loading,       setLoading]       = useState(false)
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
 
   // Sync state when URL search params change (e.g. Navbar Buy/Rent/PG links)
   useEffect(() => {
@@ -191,8 +192,48 @@ function PropertiesContent() {
       <div className="bg-white border-b border-gray-100 px-4 py-3">
         <div className="max-w-7xl mx-auto flex gap-3 items-center">
           <div className="flex-1 max-w-xl"><SearchBar compact /></div>
+          {/* Mobile filter button */}
+          <button
+            onClick={() => setFilterDrawerOpen(true)}
+            className="md:hidden flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white shrink-0 hover:border-brand-400 transition-colors">
+            <SlidersHorizontal size={15} />
+            Filters
+          </button>
         </div>
       </div>
+
+      {/* Mobile filter drawer */}
+      {filterDrawerOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setFilterDrawerOpen(false)} />
+          <div className="relative bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+              <span className="font-semibold text-gray-800">Filters</span>
+              <button onClick={() => setFilterDrawerOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-5 py-4">
+              <FilterPanel
+                listingType={listingType}
+                selectedBhk={selectedBhk}
+                selectedType={selectedType}
+                furnishing={furnishing}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                onListingType={handleListingType}
+                onBhk={handleBhk}
+                onPropertyType={t => { setSelectedType(t); setPage(0) }}
+                onFurnishing={f => { setFurnishing(f); setPage(0) }}
+                onMinPrice={setMinPrice}
+                onMaxPrice={setMaxPrice}
+                onApply={() => { fetchResults(); setFilterDrawerOpen(false) }}
+                onClear={() => { handleClear(); setFilterDrawerOpen(false) }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto">
         {/* Result count + chips + sort */}

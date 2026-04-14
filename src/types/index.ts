@@ -17,8 +17,8 @@ export interface AuthResponse {
   expiresIn: number; user: UserInfo
 }
 
-export interface LoginRequest    { email: string; password: string }
-export interface RegisterRequest { name: string; email: string; phone?: string; password: string; role?: UserRole }
+export interface LoginRequest    { identifier: string; password: string }
+export interface RegisterRequest { name: string; email: string; phone?: string; password: string }
 
 export interface PropertyCard {
   id: string; title: string; listingType: ListingType; propertyType: PropertyType

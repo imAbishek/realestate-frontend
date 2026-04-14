@@ -15,32 +15,23 @@ const schema = z.object({
   email:    z.string().email('Enter a valid email address'),
   phone:    z.string().regex(/^[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number').optional().or(z.literal('')),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  role:     z.enum(['BUYER','SELLER','AGENT']),
 })
 type FormData = z.infer<typeof schema>
-
-const ROLE_OPTIONS = [
-  { value: 'BUYER',  label: 'Buyer',  desc: 'I want to buy or rent a property'  },
-  { value: 'SELLER', label: 'Seller', desc: 'I want to list my property'         },
-  { value: 'AGENT',  label: 'Agent',  desc: 'I am a real estate professional'    },
-]
 
 export default function RegisterPage() {
   const router = useRouter()
   const { setAuth } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading,      setLoading]      = useState(false)
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { role: 'BUYER' },
   })
-  const selectedRole = watch('role')
 
   async function onSubmit(data: FormData) {
     setLoading(true)
     try {
-      const res = await authApi.register({ ...data, phone: data.phone || undefined })
+      const res = await authApi.register({ name: data.name, email: data.email, phone: data.phone || undefined, password: data.password })
       const { user, accessToken, refreshToken } = res.data
       setAuth(user, accessToken, refreshToken)
       toast.success(`Welcome to PropFind, ${user.name.split(' ')[0]}! Check your email to verify.`)
@@ -67,22 +58,6 @@ export default function RegisterPage() {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
-            {/* Role selector */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">I am a</label>
-              <div className="grid grid-cols-3 gap-2">
-                {ROLE_OPTIONS.map(opt => (
-                  <button key={opt.value} type="button"
-                    onClick={() => setValue('role', opt.value as 'BUYER'|'SELLER'|'AGENT')}
-                    className={`p-3 rounded-xl border text-left transition-colors
-                      ${selectedRole === opt.value ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <p className={`text-xs font-medium ${selectedRole === opt.value ? 'text-brand-600' : 'text-gray-700'}`}>{opt.label}</p>
-                    <p className="text-xs text-gray-400 mt-0.5 leading-tight">{opt.desc}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Name */}
             <div>

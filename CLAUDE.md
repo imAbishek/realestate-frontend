@@ -62,6 +62,9 @@ src/
 - authStore has _hasHydrated flag — check before showing auth-dependent UI
 - Inquiry endpoint: POST /properties/{id}/inquiries (not /inquiries)
 - Reset password: requires email + otp + newPassword (three fields)
+- `LoginRequest` uses `identifier` (not `email`) — accepts email or 10-digit Indian mobile number
+- `RegisterRequest` has no `role` field — backend defaults all new users to BUYER
+- `next.config.js` reads `NEXT_PUBLIC_MINIO_HOST` / `NEXT_PUBLIC_MINIO_PROTOCOL` / `NEXT_PUBLIC_MINIO_PORT` to whitelist the prod image CDN hostname for `next/image`
 
 ## Auth guard pattern (use in every protected page)
 ```tsx

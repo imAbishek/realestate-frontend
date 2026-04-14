@@ -10,8 +10,14 @@ import { authApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import { Eye, EyeOff } from 'lucide-react'
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const phoneRegex = /^[6-9]\d{9}$/
+
 const schema = z.object({
-  email:    z.string().email('Enter a valid email'),
+  identifier: z.string().min(1, 'Email or phone is required').refine(
+    val => emailRegex.test(val) || phoneRegex.test(val),
+    { message: 'Enter a valid email or 10-digit mobile number' }
+  ),
   password: z.string().min(1, 'Password is required'),
 })
 type FormData = z.infer<typeof schema>
@@ -34,7 +40,7 @@ export default function LoginPage() {
       router.push(user.role === 'ADMIN' ? '/admin' : '/dashboard')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(msg || 'Invalid email or password')
+      toast.error(msg || 'Invalid credentials')
     } finally {
       setLoading(false)
     }
@@ -56,12 +62,13 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-            {/* Email */}
+            {/* Email or phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
-              <input {...register('email')} type="email" placeholder="you@example.com"
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email or mobile number</label>
+              <input {...register('identifier')} type="text" placeholder="you@example.com or 9876543210"
+                autoComplete="username"
                 className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50 transition-colors" />
-              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+              {errors.identifier && <p className="text-xs text-red-500 mt-1">{errors.identifier.message}</p>}
             </div>
 
             {/* Password */}

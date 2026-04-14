@@ -258,7 +258,7 @@ export default function PostPropertyPage() {
               </label>
 
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-4 gap-2 mt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                   {imagePreviews.map((url, i) => (
                     <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
                       <img src={url} alt="" className="w-full h-full object-cover" />

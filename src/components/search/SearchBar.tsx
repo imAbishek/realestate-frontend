@@ -39,10 +39,10 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
           </button>
         ))}
       </div>
-      <form onSubmit={handleSearch} className="bg-white rounded-b-2xl rounded-tr-2xl p-2 flex gap-2 shadow-xl max-w-2xl">
-        <input value={city} onChange={e => setCity(e.target.value)} placeholder="City (e.g. Coimbatore)" className="w-36 px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand-400 text-gray-700 placeholder-gray-400" />
-        <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Locality, project or keyword..." className="flex-1 px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand-400 text-gray-700 placeholder-gray-400" />
-        <button type="submit" className="bg-accent-400 hover:bg-accent-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"><Search size={16} />Search</button>
+      <form onSubmit={handleSearch} className="bg-white rounded-b-2xl rounded-tr-2xl p-2 flex flex-wrap sm:flex-nowrap gap-2 shadow-xl max-w-2xl">
+        <input value={city} onChange={e => setCity(e.target.value)} placeholder="City (e.g. Coimbatore)" className="w-full sm:w-36 px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand-400 text-gray-700 placeholder-gray-400" />
+        <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Locality, project or keyword..." className="flex-1 min-w-0 px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand-400 text-gray-700 placeholder-gray-400" />
+        <button type="submit" className="w-full sm:w-auto bg-accent-400 hover:bg-accent-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"><Search size={16} />Search</button>
       </form>
     </div>
   )
