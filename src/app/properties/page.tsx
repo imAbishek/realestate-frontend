@@ -192,19 +192,19 @@ function PropertiesContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top search bar — sticky below the main navbar (h-16 = 4rem) */}
-      <div className="bg-white border-b border-gray-100 sticky top-16 z-40">
+      <div className="bg-white border-b border-gray-100 sticky top-16 z-40 overflow-x-hidden">
         {/* Listing type tabs — mobile only */}
         <div className="md:hidden flex border-b border-gray-100">
           {(['SALE', 'RENT', 'PG'] as ListingType[]).map(t => (
             <button key={t} onClick={() => handleListingType(t)}
-              className={`flex-1 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors
-                ${listingType === t ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
+              className={`flex-1 py-2.5 text-xs font-semibold transition-colors
+                ${listingType === t ? 'text-brand-600 border-b-2 border-brand-600' : 'text-gray-400'}`}>
               {LISTING_TYPE_LABEL[t]}
             </button>
           ))}
         </div>
-        <div className="max-w-7xl mx-auto px-4 py-3 flex gap-3 items-center">
-          <div className="flex-1 max-w-xl"><SearchBar compact /></div>
+        <div className="px-4 py-3 flex gap-2 items-center">
+          <div className="flex-1 min-w-0"><SearchBar compact /></div>
           {/* Mobile filter button */}
           <button
             onClick={() => setFilterDrawerOpen(true)}
@@ -250,26 +250,30 @@ function PropertiesContent() {
 
       <div className="max-w-7xl mx-auto">
         {/* Result count + chips + sort */}
-        <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="px-4 pt-3 pb-2 space-y-2">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-sm text-gray-500">
               {results
                 ? `${results.totalElements.toLocaleString()} ${LISTING_NOUN[listingType]} ${results.totalElements === 1 ? 'property' : 'properties'}`
                 : 'Searching...'}
             </span>
-            {activeFilters.map((f, i) => (
-              <span key={i} className="inline-flex items-center gap-1 bg-brand-50 text-brand-800 border border-brand-200 rounded-full px-3 py-0.5 text-xs font-medium">
-                {f.label}<button onClick={f.clear}><X size={10} /></button>
-              </span>
-            ))}
+            <select value={sort} onChange={e => { setSort(e.target.value); setPage(0) }}
+              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white outline-none shrink-0">
+              <option value="createdAt,desc">Newest first</option>
+              <option value="price,asc">Price ↑</option>
+              <option value="price,desc">Price ↓</option>
+              <option value="viewsCount,desc">Popular</option>
+            </select>
           </div>
-          <select value={sort} onChange={e => { setSort(e.target.value); setPage(0) }}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white outline-none">
-            <option value="createdAt,desc">Newest first</option>
-            <option value="price,asc">Price: Low to high</option>
-            <option value="price,desc">Price: High to low</option>
-            <option value="viewsCount,desc">Most popular</option>
-          </select>
+          {activeFilters.length > 0 && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {activeFilters.map((f, i) => (
+                <span key={i} className="inline-flex items-center gap-1 bg-brand-50 text-brand-800 border border-brand-200 rounded-full px-3 py-0.5 text-xs font-medium">
+                  {f.label}<button onClick={f.clear}><X size={10} /></button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex">
