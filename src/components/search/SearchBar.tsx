@@ -24,8 +24,8 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
 
   if (compact) return (
     <form onSubmit={handleSearch} className="flex gap-2 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm">
-      <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Search city, locality, project..." className="flex-1 px-3 text-sm outline-none text-gray-700 placeholder-gray-400" />
-      <button type="submit" className="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 hover:bg-brand-800 transition-colors"><Search size={15} />Search</button>
+      <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Search city, locality, project..." className="flex-1 min-w-0 px-3 text-sm outline-none text-gray-700 placeholder-gray-400" />
+      <button type="submit" className="shrink-0 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 hover:bg-brand-800 transition-colors"><Search size={15} />Search</button>
     </form>
   )
 

@@ -186,11 +186,24 @@ function PropertiesContent() {
   // Fix: clear also resets the page so stale pagination is never shown
   function handleClear() { setSelectedBhk([]); setSelectedType(''); setFurnishing(''); setMinPrice(''); setMaxPrice(''); setPage(0) }
 
+  const LISTING_TYPE_LABEL: Record<ListingType, string> = { SALE: 'Buy', RENT: 'Rent', PG: 'PG / Co-living' }
+  const LISTING_NOUN: Record<ListingType, string> = { SALE: 'sale', RENT: 'rental', PG: 'PG' }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top search bar */}
-      <div className="bg-white border-b border-gray-100 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex gap-3 items-center">
+      {/* Top search bar — sticky below the main navbar (h-16 = 4rem) */}
+      <div className="bg-white border-b border-gray-100 sticky top-16 z-40">
+        {/* Listing type tabs — mobile only */}
+        <div className="md:hidden flex border-b border-gray-100">
+          {(['SALE', 'RENT', 'PG'] as ListingType[]).map(t => (
+            <button key={t} onClick={() => handleListingType(t)}
+              className={`flex-1 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors
+                ${listingType === t ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
+              {LISTING_TYPE_LABEL[t]}
+            </button>
+          ))}
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-3 flex gap-3 items-center">
           <div className="flex-1 max-w-xl"><SearchBar compact /></div>
           {/* Mobile filter button */}
           <button
@@ -240,7 +253,9 @@ function PropertiesContent() {
         <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-gray-500">
-              {results ? `${results.totalElements.toLocaleString()} properties found` : 'Searching...'}
+              {results
+                ? `${results.totalElements.toLocaleString()} ${LISTING_NOUN[listingType]} ${results.totalElements === 1 ? 'property' : 'properties'}`
+                : 'Searching...'}
             </span>
             {activeFilters.map((f, i) => (
               <span key={i} className="inline-flex items-center gap-1 bg-brand-50 text-brand-800 border border-brand-200 rounded-full px-3 py-0.5 text-xs font-medium">
@@ -288,8 +303,8 @@ function PropertiesContent() {
               </div>
             ) : results?.content.length === 0 ? (
               <div className="text-center py-24">
-                <p className="text-gray-400 text-lg mb-2">No properties found</p>
-                <p className="text-gray-400 text-sm">Try adjusting your filters</p>
+                <p className="text-gray-400 text-lg mb-2">No {LISTING_NOUN[listingType]} properties found</p>
+                <p className="text-gray-400 text-sm">Try adjusting your filters or switching to Buy / Rent / PG</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
