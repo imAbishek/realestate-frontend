@@ -130,6 +130,7 @@ function PropertiesContent() {
   const [maxPrice,      setMaxPrice]      = useState(searchParams.get('maxPrice') || '')
   const [citySlug,      setCitySlug]      = useState(searchParams.get('citySlug') || '')
   const [keyword,       setKeyword]       = useState(searchParams.get('keyword') || '')
+  const [featuredOnly,  setFeaturedOnly]  = useState(searchParams.get('featuredOnly') === 'true')
   const [sort,          setSort]          = useState('createdAt,desc')
   const [page,          setPage]          = useState(0)
   const [results,       setResults]       = useState<Page<PropertyCardType> | null>(null)
@@ -144,6 +145,7 @@ function PropertiesContent() {
     setListingType(lt)
     setCitySlug(cs)
     setKeyword(kw)
+    setFeaturedOnly(searchParams.get('featuredOnly') === 'true')
     setPage(0)
   }, [searchParams])
 
@@ -153,6 +155,7 @@ function PropertiesContent() {
       const params: Record<string, unknown> = { listingType, sort, page, size: 12 }
       if (citySlug)           params.citySlug    = citySlug
       if (keyword)            params.keyword     = keyword
+      if (featuredOnly)       params.featuredOnly = true
       if (minPrice)           params.minPrice    = minPrice
       if (maxPrice)           params.maxPrice    = maxPrice
       if (furnishing)         params.furnishing  = furnishing
@@ -169,7 +172,7 @@ function PropertiesContent() {
     } finally {
       setLoading(false)
     }
-  }, [listingType, sort, page, citySlug, keyword, minPrice, maxPrice, furnishing, selectedBhk, selectedType])
+  }, [listingType, sort, page, citySlug, keyword, minPrice, maxPrice, furnishing, selectedBhk, selectedType, featuredOnly])
 
   useEffect(() => { fetchResults() }, [fetchResults])
 

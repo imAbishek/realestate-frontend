@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { Menu, X, LogOut, PlusCircle, LayoutDashboard } from 'lucide-react'
 
@@ -9,7 +9,20 @@ export default function Navbar() {
   const { isLoggedIn, user, logout, _hasHydrated } = useAuthStore()
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropOpen, setDropOpen] = useState(false)
+  const dropRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!dropOpen) return
+    function handleOutside(e: MouseEvent) {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setDropOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [dropOpen])
 
   function handleLogout() { logout(); router.push('/') }
 
@@ -31,7 +44,7 @@ export default function Navbar() {
           {/* Render nothing until Zustand hydrates to avoid flashing Login/Register
               buttons for users who are already signed in. */}
           {_hasHydrated && isLoggedIn && user ? (
-            <div className="relative">
+            <div className="relative" ref={dropRef}>
               <button onClick={() => setDropOpen(!dropOpen)}
                 className="flex items-center gap-2 text-sm border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50">
                 <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-medium">

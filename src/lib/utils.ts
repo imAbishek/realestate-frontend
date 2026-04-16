@@ -9,7 +9,9 @@ export function formatPrice(price: number, unit: PriceUnit = 'TOTAL'): string {
     : price >= 100_000
     ? `₹${(price / 100_000).toFixed(2)} Lac`
     : `₹${price.toLocaleString('en-IN')}`
-  return unit === 'PER_MONTH' ? `${f}/mo` : f
+  if (unit === 'PER_MONTH') return `${f}/mo`
+  if (unit === 'PER_SQFT')  return `${f}/sqft`
+  return f
 }
 
 export const LISTING_TYPE_LABELS: Record<ListingType, string> = {

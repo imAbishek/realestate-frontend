@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import { adminApi } from '@/lib/api'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import type { PropertyCard } from '@/types'
-import { CheckCircle, XCircle, Star, StarOff, Trash2, Eye, Search } from 'lucide-react'
+import { CheckCircle, XCircle, Star, StarOff, Eye, Search } from 'lucide-react'
 
 const STATUS_TABS = ['PENDING_REVIEW','ACTIVE','REJECTED','EXPIRED','ALL'] as const
 type StatusTab = typeof STATUS_TABS[number]
