@@ -22,9 +22,16 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
     router.push(`/properties?${params.toString()}`)
   }
 
+  function handleCompactSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const params = new URLSearchParams({ listingType: tab })
+    if (keyword) params.set('citySlug', keyword.trim().toLowerCase().replace(/\s+/g, '-'))
+    router.push(`/properties?${params.toString()}`)
+  }
+
   if (compact) return (
-    <form onSubmit={handleSearch} className="w-full flex gap-2 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm">
-      <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Search city, locality, project..." className="flex-1 min-w-0 px-3 text-sm outline-none text-gray-700 placeholder-gray-400" />
+    <form onSubmit={handleCompactSearch} className="w-full flex gap-2 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm">
+      <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Search city (e.g. Coimbatore)..." className="flex-1 min-w-0 px-3 text-sm outline-none text-gray-700 placeholder-gray-400" />
       <button type="submit" className="shrink-0 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 hover:bg-brand-800 transition-colors"><Search size={15} />Search</button>
     </form>
   )
