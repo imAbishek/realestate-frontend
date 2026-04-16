@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import type { ListingType } from '@/types'
 
@@ -8,9 +8,14 @@ const TABS: { label: string; value: ListingType }[] = [
   { label: 'Buy', value: 'SALE' }, { label: 'Rent', value: 'RENT' }, { label: 'PG / Co-living', value: 'PG' },
 ]
 
-export default function SearchBar({ compact = false }: { compact?: boolean }) {
+interface Props {
+  compact?: boolean
+  /** Pass current listingType in compact mode so search preserves the active tab (e.g. RENT) */
+  currentListingType?: ListingType
+}
+
+export default function SearchBar({ compact = false, currentListingType }: Props) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [tab,     setTab]     = useState<ListingType>('SALE')
   const [keyword, setKeyword] = useState('')
   const [city,    setCity]    = useState('')
@@ -25,10 +30,9 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
 
   function handleCompactSearch(e: React.FormEvent) {
     e.preventDefault()
-    // Preserve the current listingType from the URL (e.g. RENT) so searching
+    // Use the listingType passed in from the parent (e.g. RENT) so searching
     // from the properties page doesn't silently reset to SALE.
-    const currentListingType = (searchParams.get('listingType') as ListingType) || tab
-    const params = new URLSearchParams({ listingType: currentListingType })
+    const params = new URLSearchParams({ listingType: currentListingType ?? 'SALE' })
     if (keyword) params.set('citySlug', keyword.trim().toLowerCase().replace(/\s+/g, '-'))
     router.push(`/properties?${params.toString()}`)
   }

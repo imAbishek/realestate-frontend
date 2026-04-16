@@ -207,7 +207,7 @@ function PropertiesContent() {
           ))}
         </div>
         <div className="px-4 py-3 flex gap-2 items-center">
-          <div className="flex-1 min-w-0"><SearchBar compact /></div>
+          <div className="flex-1 min-w-0"><SearchBar compact currentListingType={listingType} /></div>
           {/* Mobile filter button */}
           <button
             onClick={() => setFilterDrawerOpen(true)}
