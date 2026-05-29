@@ -26,7 +26,7 @@ const schema = z.object({
   title:            z.string().min(1, 'Title is required'),
   description:      z.string().optional(),
   listingType:      z.enum(['SALE','RENT','PG']),
-  propertyType:     z.enum(['APARTMENT','INDEPENDENT_HOUSE','VILLA','PLOT','COMMERCIAL_OFFICE','COMMERCIAL_SHOP','BUILDER_FLOOR','PG_HOSTEL']),
+  propertyType:     z.enum(['APARTMENT','INDEPENDENT_HOUSE','VILLA','PLOT','COMMERCIAL_OFFICE','COMMERCIAL_SHOP','BUILDER_FLOOR','PG_HOSTEL','AGRICULTURAL_LAND']),
   localityId:       z.string().uuid('Please select a locality'),
   price:            z.number({ invalid_type_error: 'Enter a valid price' }).positive('Price must be greater than 0'),
   priceUnit:        z.enum(['TOTAL','PER_MONTH','PER_SQFT']).optional(),

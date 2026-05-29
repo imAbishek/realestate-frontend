@@ -1,7 +1,7 @@
 // src/types/index.ts — mirrors Spring Boot DTOs exactly
 
 export type ListingType     = 'SALE' | 'RENT' | 'PG'
-export type PropertyType    = 'APARTMENT' | 'INDEPENDENT_HOUSE' | 'VILLA' | 'PLOT' | 'COMMERCIAL_OFFICE' | 'COMMERCIAL_SHOP' | 'BUILDER_FLOOR' | 'PG_HOSTEL'
+export type PropertyType    = 'APARTMENT' | 'INDEPENDENT_HOUSE' | 'VILLA' | 'PLOT' | 'COMMERCIAL_OFFICE' | 'COMMERCIAL_SHOP' | 'BUILDER_FLOOR' | 'PG_HOSTEL' | 'AGRICULTURAL_LAND'
 export type FurnishingStatus = 'UNFURNISHED' | 'SEMI_FURNISHED' | 'FULLY_FURNISHED'
 export type ListingStatus   = 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'EXPIRED' | 'REJECTED' | 'SOLD_RENTED'
 export type PriceUnit       = 'TOTAL' | 'PER_MONTH' | 'PER_SQFT'
