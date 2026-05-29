@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
@@ -9,6 +9,18 @@ import { propertyApi, searchApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import type { City, Locality, PropertyDetail, PropertyImage } from '@/types'
 import { Upload, X, AlertCircle } from 'lucide-react'
+
+// Presentational label/error wrapper — declared at module scope so it keeps a stable
+// identity across renders (a component defined inside render resets its subtree each pass).
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      {children}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  )
+}
 
 const schema = z.object({
   title:            z.string().min(1, 'Title is required'),
@@ -51,19 +63,22 @@ export default function EditPropertyPage() {
   const [newImages,         setNewImages]         = useState<File[]>([])
   const [newImagePreviews,  setNewImagePreviews]  = useState<string[]>([])
 
+  // Builds object URLs for the newly selected files and revokes them on cleanup — this is an
+  // imperative browser-resource side effect, so it must live in an effect (not derived state).
   useEffect(() => {
     const urls = newImages.map(f => URL.createObjectURL(f))
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNewImagePreviews(urls)
     return () => urls.forEach(url => URL.revokeObjectURL(url))
   }, [newImages])
   const [fetching,       setFetching]       = useState(true)
   const [loading,        setLoading]        = useState(false)
 
-  const { register, handleSubmit, watch, setValue, trigger, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue, trigger, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { listingType: 'SALE', propertyType: 'APARTMENT', priceUnit: 'TOTAL', furnishing: 'UNFURNISHED', parkingAvailable: false, priceNegotiable: false },
   })
-  const listingType = watch('listingType')
+  const listingType = useWatch({ control, name: 'listingType' })
 
   useEffect(() => { if (_hasHydrated && !isLoggedIn) router.push('/auth/login') }, [_hasHydrated, isLoggedIn, router])
 
@@ -153,16 +168,6 @@ export default function EditPropertyPage() {
     const maxNew = 20 - existingImages.length
     const files = Array.from(e.target.files).slice(0, maxNew - newImages.length)
     setNewImages(prev => [...prev, ...files])
-  }
-
-  function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-    return (
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-        {children}
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-      </div>
-    )
   }
 
   const inputCls  = "w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
@@ -356,6 +361,7 @@ export default function EditPropertyPage() {
                   <div className="grid grid-cols-4 gap-2">
                     {existingImages.map((img, i) => (
                       <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img.url} alt="" className="w-full h-full object-cover" />
                         {(img.isPrimary || i === 0) && (
                           <span className="absolute bottom-1 left-1 bg-brand-600 text-white text-xs px-1.5 py-0.5 rounded">Cover</span>
@@ -390,6 +396,7 @@ export default function EditPropertyPage() {
                   <div className="grid grid-cols-4 gap-2">
                     {newImagePreviews.map((url, i) => (
                       <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={url} alt="" className="w-full h-full object-cover" />
                         <button type="button" onClick={() => setNewImages(prev => prev.filter((_, j) => j !== i))}
                           className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow">

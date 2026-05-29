@@ -6,7 +6,7 @@ export default function AboutPage() {
       <div className="max-w-3xl mx-auto">
         <div className="mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">About PropFind</h1>
-          <p className="text-gray-500">India's trusted real estate platform</p>
+          <p className="text-gray-500">India&apos;s trusted real estate platform</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-8">
@@ -15,7 +15,7 @@ export default function AboutPage() {
             <p className="text-gray-600 text-sm leading-relaxed">
               PropFind is a real estate marketplace connecting buyers, sellers, and agents across India.
               We make it easy to discover, list, and inquire about residential and commercial properties —
-              whether you're buying, renting, or looking for PG accommodation.
+              whether you&apos;re buying, renting, or looking for PG accommodation.
             </p>
           </section>
 

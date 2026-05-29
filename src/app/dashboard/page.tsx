@@ -102,6 +102,7 @@ export default function DashboardPage() {
                   {/* Thumbnail */}
                   <div className="w-16 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                     {property.primaryImageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={property.primaryImageUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <svg className="w-6 h-6 text-gray-300" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 3L21 12V21H15V15H9V21H3V12Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>

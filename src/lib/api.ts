@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/store/authStore'
-import type { AuthResponse, LoginRequest, RegisterRequest, PropertyCard, PropertyDetail, SearchParams, Page, City, Locality, InquiryRequest } from '@/types'
+import type { AuthResponse, LoginRequest, RegisterRequest, PropertyCard, PropertyDetail, SearchParams, Page, City, Locality, InquiryRequest, DocumentDownload } from '@/types'
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
@@ -84,7 +84,9 @@ export const searchApi = {
 // ── Admin ───────────────────────────────────────────────────
 export const adminApi = {
   getPending:     (page = 0)               => api.get('/admin/listings/pending', { params: { page } }),
-  getListing:     (id: string)             => api.get(`/admin/listings/${id}`),
+  getListing:     (id: string)             => api.get<PropertyDetail>(`/admin/listings/${id}`),
+  getDocumentDownloadUrl: (propertyId: string, documentId: string) =>
+    api.get<DocumentDownload>(`/admin/listings/${propertyId}/documents/${documentId}/download`),
   getAllListings:  (status?: string, page = 0) => api.get('/admin/listings/all', { params: { status, page } }),
   approve:        (id: string)             => api.put(`/admin/listings/${id}/approve`),
   reject:         (id: string, reason: string) => api.put(`/admin/listings/${id}/reject`, { rejectionReason: reason }),

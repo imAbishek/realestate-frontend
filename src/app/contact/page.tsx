@@ -4,7 +4,7 @@ export default function ContactPage() {
       <div className="max-w-3xl mx-auto">
         <div className="mb-10">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">Contact us</h1>
-          <p className="text-gray-500">We'd love to hear from you</p>
+          <p className="text-gray-500">We&apos;d love to hear from you</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">

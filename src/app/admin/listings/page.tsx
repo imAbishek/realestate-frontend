@@ -43,6 +43,10 @@ export default function AdminListingsPage() {
     finally   { setLoading(false) }
   }, [activeTab, page])
 
+  // Data-fetch effect: loads listings from the server when the tab/page changes. The
+  // synchronous setLoading inside load() is the intended loading indicator, not the
+  // derived-state antipattern this rule targets.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load() }, [load])
 
   async function approve(id: string) {
@@ -110,6 +114,7 @@ export default function AdminListingsPage() {
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-12 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                         {p.primaryImageUrl
+                          // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={p.primaryImageUrl} alt="" className="w-full h-full object-cover" />
                           : <span className="text-gray-200 text-lg">⌂</span>}
                       </div>
@@ -157,6 +162,7 @@ export default function AdminListingsPage() {
                   <div className="flex items-start gap-3">
                     <div className="w-14 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                       {p.primaryImageUrl
+                        // eslint-disable-next-line @next/next/no-img-element
                         ? <img src={p.primaryImageUrl} alt="" className="w-full h-full object-cover" />
                         : <span className="text-gray-200 text-lg">⌂</span>}
                     </div>

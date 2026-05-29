@@ -25,6 +25,7 @@ export interface PropertyCard {
   status: ListingStatus
   price: number; priceUnit: PriceUnit; bedrooms: number | null; bathrooms: number | null
   areaSqft: number; furnishing: FurnishingStatus; localityName: string; cityName: string
+  latitude: number | null; longitude: number | null
   isFeatured: boolean; isVerified: boolean; primaryImageUrl: string | null
   viewsCount: number; createdAt: string
 }
@@ -32,6 +33,19 @@ export interface PropertyCard {
 export interface PropertyImage { id: string; url: string; isPrimary: boolean; sortOrder: number }
 export interface Amenity       { id: string; name: string; category: string; iconKey: string }
 export interface OwnerInfo     { id: string; name: string; phone: string | null; profilePhotoUrl: string | null; role: UserRole; agencyName: string | null; avgRating: number | null }
+
+export interface PropertyDocument {
+  id: string
+  docType: 'FMB_SKETCH' | 'EC' | 'PATTA' | 'APPROVAL_LETTER' | 'OTHER'
+  url: string
+  label: string | null
+}
+
+export interface DocumentDownload {
+  url: string
+  expiresIn: number
+  docType: string
+}
 
 export interface PropertyDetail {
   id: string; title: string; description: string; listingType: ListingType
@@ -45,6 +59,7 @@ export interface PropertyDetail {
   cityName: string; citySlug: string; isFeatured: boolean; isVerified: boolean
   viewsCount: number; inquiryCount: number; images: PropertyImage[]; amenities: Amenity[]
   owner: OwnerInfo; createdAt: string; expiresAt: string
+  documents?: PropertyDocument[] | null
 }
 
 export interface SearchParams {

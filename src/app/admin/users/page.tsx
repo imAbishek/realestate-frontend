@@ -29,7 +29,11 @@ export default function AdminUsersPage() {
   const [total,     setTotal]     = useState(0)
   const [totalPages, setTotalPages] = useState(0)
 
+  // Data-fetch effect: loads users from the server when the role tab/page changes. The
+  // synchronous setLoading is the intended loading indicator, not the derived-state
+  // antipattern this rule targets.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true)
     const role = roleTab === 'ALL' ? undefined : roleTab
     adminApi.getUsers(page, role)

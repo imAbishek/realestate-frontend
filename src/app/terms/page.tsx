@@ -34,7 +34,7 @@ export default function TermsPage() {
             <h2 className="text-base font-semibold text-gray-800 mb-3">4. Prohibited conduct</h2>
             <ul className="space-y-2">
               <li>· Do not use the platform to harass, spam, or defraud other users.</li>
-              <li>· Do not attempt to circumvent security controls or access others' accounts.</li>
+              <li>· Do not attempt to circumvent security controls or access others&apos; accounts.</li>
               <li>· Do not scrape or bulk-download listing data without written permission.</li>
             </ul>
           </section>

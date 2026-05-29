@@ -137,17 +137,20 @@ function PropertiesContent() {
   const [loading,       setLoading]       = useState(false)
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
 
-  // Sync state when URL search params change (e.g. Navbar Buy/Rent/PG links)
-  useEffect(() => {
-    const lt = (searchParams.get('listingType') as ListingType) || 'SALE'
-    const cs = searchParams.get('citySlug') || ''
-    const kw = searchParams.get('keyword')  || ''
-    setListingType(lt)
-    setCitySlug(cs)
-    setKeyword(kw)
+  // Sync filter state when the URL search params change (e.g. Navbar Buy/Rent/PG links
+  // while already on this page). Done during render via the "store previous value" pattern
+  // rather than in an effect — React applies it before paint with no extra commit, and it
+  // avoids the cascading re-render that a setState-in-effect would cause.
+  const paramsKey = searchParams.toString()
+  const [prevParamsKey, setPrevParamsKey] = useState(paramsKey)
+  if (paramsKey !== prevParamsKey) {
+    setPrevParamsKey(paramsKey)
+    setListingType((searchParams.get('listingType') as ListingType) || 'SALE')
+    setCitySlug(searchParams.get('citySlug') || '')
+    setKeyword(searchParams.get('keyword') || '')
     setFeaturedOnly(searchParams.get('featuredOnly') === 'true')
     setPage(0)
-  }, [searchParams])
+  }
 
   const fetchResults = useCallback(async () => {
     setLoading(true)
@@ -174,6 +177,10 @@ function PropertiesContent() {
     }
   }, [listingType, sort, page, citySlug, keyword, minPrice, maxPrice, furnishing, selectedBhk, selectedType, featuredOnly])
 
+  // Data-fetch effect: synchronizes results with the current filters by querying the server
+  // (an external system — exactly what effects are for). The synchronous setLoading inside
+  // fetchResults is intentional, so this rule doesn't apply here.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchResults() }, [fetchResults])
 
   const activeFilters = [

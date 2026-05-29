@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, Fragment } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
@@ -9,6 +9,18 @@ import { propertyApi, searchApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import type { City, Locality } from '@/types'
 import { Upload, X } from 'lucide-react'
+
+// Presentational label/error wrapper — declared at module scope so it keeps a stable
+// identity across renders (a component defined inside render resets its subtree each pass).
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      {children}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  )
+}
 
 const schema = z.object({
   title:            z.string().min(1, 'Title is required'),
@@ -40,19 +52,22 @@ export default function PostPropertyPage() {
   const [images,        setImages]        = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
 
+  // Builds object URLs for the selected files and revokes them on cleanup — this is an
+  // imperative browser-resource side effect, so it must live in an effect (not derived state).
   useEffect(() => {
     const urls = images.map(f => URL.createObjectURL(f))
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImagePreviews(urls)
     return () => urls.forEach(url => URL.revokeObjectURL(url))
   }, [images])
   const [, setCreatedId]  = useState<string | null>(null)
   const [loading,    setLoading]    = useState(false)
 
-  const { register, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue, trigger, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { listingType: 'SALE', propertyType: 'APARTMENT', priceUnit: 'TOTAL', furnishing: 'UNFURNISHED', parkingAvailable: false, priceNegotiable: false },
   })
-  const listingType = watch('listingType')
+  const listingType = useWatch({ control, name: 'listingType' })
 
   useEffect(() => { if (_hasHydrated && !isLoggedIn) router.push('/auth/login') }, [_hasHydrated, isLoggedIn, router])
   useEffect(() => { searchApi.cities().then(r => setCities(r.data)) }, [])
@@ -87,16 +102,6 @@ export default function PostPropertyPage() {
     if (!e.target.files) return
     const files = Array.from(e.target.files).slice(0, 20 - images.length)
     setImages(prev => [...prev, ...files])
-  }
-
-  function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-    return (
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-        {children}
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-      </div>
-    )
   }
 
   const inputCls = "w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
@@ -261,6 +266,7 @@ export default function PostPropertyPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                   {imagePreviews.map((url, i) => (
                     <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       {i === 0 && (
                         <span className="absolute bottom-1 left-1 bg-brand-600 text-white text-xs px-1.5 py-0.5 rounded">Cover</span>

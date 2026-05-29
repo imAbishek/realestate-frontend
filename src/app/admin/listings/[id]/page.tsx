@@ -5,8 +5,8 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { adminApi } from '@/lib/api'
 import { formatPrice, LISTING_TYPE_LABELS, PROPERTY_TYPE_LABELS, FURNISHING_LABELS } from '@/lib/utils'
-import type { PropertyDetail } from '@/types'
-import { ArrowLeft, CheckCircle, XCircle, Star, StarOff, Bed, Bath, Maximize2, MapPin } from 'lucide-react'
+import type { PropertyDetail, PropertyDocument } from '@/types'
+import { ArrowLeft, CheckCircle, XCircle, Star, StarOff, Bed, Bath, Maximize2, MapPin, FileText, ExternalLink, ShieldCheck } from 'lucide-react'
 
 const STATUS_BADGE: Record<string, string> = {
   PENDING_REVIEW: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -153,6 +153,9 @@ export default function AdminListingPreview() {
               </div>
             )}
           </div>
+
+          {/* Verification documents */}
+          <VerificationDocs propertyId={id} documents={property.documents ?? []} />
         </div>
 
         {/* Right — actions + owner */}
@@ -206,6 +209,84 @@ export default function AdminListingPreview() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── Verification documents panel ────────────────────────────
+
+const DOC_LABELS: Record<PropertyDocument['docType'], string> = {
+  FMB_SKETCH:      'FMB Sketch',
+  EC:              'Encumbrance Certificate',
+  PATTA:           'Patta / Chitta',
+  APPROVAL_LETTER: 'Approval Letter',
+  OTHER:           'Other Document',
+}
+
+function VerificationDocs({
+  propertyId, documents,
+}: {
+  propertyId: string; documents: PropertyDocument[]
+}) {
+  const [opening, setOpening] = useState<string | null>(null)
+
+  async function view(doc: PropertyDocument) {
+    setOpening(doc.id)
+    try {
+      const res = await adminApi.getDocumentDownloadUrl(propertyId, doc.id)
+      // Open the signed URL in a new tab so the admin keeps their review context.
+      window.open(res.data.url, '_blank', 'noopener,noreferrer')
+    } catch {
+      toast.error('Could not generate download link')
+    } finally {
+      setOpening(null)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+          <ShieldCheck size={15} className="text-brand-600" />
+          Verification Documents
+        </h2>
+        <span className="text-xs text-gray-400">{documents.length} uploaded</span>
+      </div>
+
+      {documents.length === 0 ? (
+        <p className="text-sm text-gray-400 italic">
+          The owner has not uploaded any verification documents yet.
+        </p>
+      ) : (
+        <ul className="divide-y divide-gray-100">
+          {documents.map((doc) => {
+            const ext = (doc.url.split('.').pop() || '').toLowerCase()
+            const isPdf = ext === 'pdf'
+            return (
+              <li key={doc.id} className="flex items-center gap-3 py-3">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0
+                  ${isPdf ? 'bg-red-50 text-red-600' : 'bg-brand-50 text-brand-600'}`}>
+                  <FileText size={16} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-800">{DOC_LABELS[doc.docType]}</p>
+                  <p className="text-xs text-gray-400">
+                    {doc.label ?? `.${ext || 'file'}`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => view(doc)}
+                  disabled={opening === doc.id}
+                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg
+                    bg-brand-50 text-brand-700 border border-brand-100 hover:bg-brand-100
+                    disabled:opacity-60 transition-colors">
+                  {opening === doc.id ? 'Opening…' : <>View <ExternalLink size={12} /></>}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }
