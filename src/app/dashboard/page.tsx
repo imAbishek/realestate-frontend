@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 import { formatPrice, LISTING_TYPE_LABELS, timeAgo } from '@/lib/utils'
 import type { PropertyCard, Page } from '@/types'
 import { PlusCircle, Eye, Trash2, Edit, BadgeCheck, Clock, XCircle } from 'lucide-react'
+import IncomingBookings from '@/components/dashboard/IncomingBookings'
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
   ACTIVE:         { label: 'Active',        cls: 'bg-green-50 text-green-700 border-green-200',  icon: <BadgeCheck size={12} /> },
@@ -168,6 +169,9 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Site visit requests on my listings */}
+      <IncomingBookings />
     </div>
   )
 }

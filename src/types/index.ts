@@ -78,3 +78,27 @@ export interface Page<T> {
 }
 
 export interface InquiryRequest { message: string; guestName?: string; guestEmail?: string; guestPhone?: string }
+
+// ── Site visit bookings (mirrors BookingDtos) ──────────────
+export type BookingStatus = 'REQUESTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
+export type CancelledBy   = 'BUYER' | 'OWNER' | 'ADMIN'
+
+export interface SiteVisitBooking {
+  id: string
+  propertyId: string
+  propertyTitle: string
+  propertyImageUrl: string | null
+  propertyLocality: string
+  propertyCity: string
+  contactName: string
+  contactPhone: string | null
+  contactEmail: string | null
+  preferredDate: string | null
+  preferredWindow: string | null
+  notes: string | null
+  status: BookingStatus
+  cancelReason: string | null
+  cancelledBy: CancelledBy | null
+  createdAt: string
+  updatedAt: string
+}
