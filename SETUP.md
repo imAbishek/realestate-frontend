@@ -31,29 +31,7 @@ npm install
 
 ---
 
-## Step 3 — Create your env file
-
-```bash
-# Linux / macOS
-cp .env.example .env.local
-
-# Windows PowerShell
-Copy-Item .env.example .env.local
-```
-
-Then check `.env.local`:
-
-```ini
-NEXT_PUBLIC_API_URL=http://localhost:8080/api      # points at your local Spring Boot
-NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_google_maps_api_key
-```
-
-The API URL default is correct for local dev. The Google Maps key is optional — map features
-degrade gracefully without it. `.env.local` is gitignored — never commit it.
-
----
-
-## Step 4 — Run the dev server
+## Step 3 — Run the dev server
 
 ```bash
 npm run dev
@@ -65,7 +43,7 @@ Open **http://localhost:3000**. The app hot-reloads on save.
 
 ---
 
-## Step 5 — Validate after any change
+## Step 4 — Validate after any change
 
 ```bash
 npx tsc --noEmit     # type check — must pass
