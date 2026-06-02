@@ -1,5 +1,7 @@
 # PropFind — Next.js Frontend
 
+> **Full local setup (Windows / Linux / macOS):** see [`SETUP.md`](SETUP.md).
+
 ## Quick start
 
 ```bash
