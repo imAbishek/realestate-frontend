@@ -39,24 +39,24 @@ export default function InquiryForm({ propertyId }: { propertyId: string }) {
       <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
         <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
-      <p className="text-sm font-medium text-gray-800">Inquiry sent!</p>
-      <p className="text-xs text-gray-400 mt-1">The owner will contact you soon.</p>
+      <p className="text-sm font-medium text-slate-800">Inquiry sent!</p>
+      <p className="text-xs text-slate-400 mt-1">The owner will contact you soon.</p>
     </div>
   )
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <textarea {...register('message')} rows={3} placeholder="Write your message..."
-        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 resize-none placeholder-gray-400" />
+        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400 resize-none placeholder-slate-400" />
       {errors.message && <p className="text-xs text-red-500">{errors.message.message}</p>}
       {/* Only render guest fields after Zustand has hydrated from localStorage.
           Without this guard, logged-in users see a flash of guest input fields
           because isLoggedIn is false until the persist middleware rehydrates. */}
       {_hasHydrated && !isLoggedIn && (
         <>
-          <input {...register('guestName')}  placeholder="Your name"         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400" />
-          <input {...register('guestPhone')} placeholder="Your phone number" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400" />
-          <input {...register('guestEmail')} placeholder="Your email (optional)" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400" />
+          <input {...register('guestName')}  placeholder="Your name"         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400" />
+          <input {...register('guestPhone')} placeholder="Your phone number" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400" />
+          <input {...register('guestEmail')} placeholder="Your email (optional)" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400" />
         </>
       )}
       <button type="submit" disabled={submitting}

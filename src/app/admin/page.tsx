@@ -12,12 +12,12 @@ interface Overview {
 
 function StatCard({ icon, label, value, sub, color }: { icon: React.ReactNode; label: string; value: number | string; sub?: string; color: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4">
+    <div className="bg-white rounded-2xl border border-slate-100 p-5 flex items-start gap-4">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>{icon}</div>
       <div>
-        <p className="text-2xl font-semibold text-gray-900">{value}</p>
-        <p className="text-sm text-gray-500 mt-0.5">{label}</p>
-        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+        <p className="text-2xl font-semibold text-slate-900">{value}</p>
+        <p className="text-sm text-slate-500 mt-0.5">{label}</p>
+        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
       </div>
     </div>
   )
@@ -33,8 +33,8 @@ export default function AdminOverviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Overview</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Platform health at a glance</p>
+        <h1 className="text-xl font-semibold text-slate-900">Overview</h1>
+        <p className="text-sm text-slate-400 mt-0.5">Platform health at a glance</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -47,28 +47,28 @@ export default function AdminOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <h2 className="text-sm font-semibold text-gray-800 mb-5">Listings by city</h2>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <h2 className="text-sm font-semibold text-slate-800 mb-5">Listings by city</h2>
           <div className="space-y-3">
             {data?.listingsByCity.slice(0, 8).map(({ city, count }) => {
               const pct = Math.round((Number(count) / maxCount) * 100)
               return (
                 <div key={city}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-gray-600 font-medium">{city}</span>
-                    <span className="text-gray-400">{Number(count).toLocaleString()}</span>
+                    <span className="text-slate-600 font-medium">{city}</span>
+                    <span className="text-slate-400">{Number(count).toLocaleString()}</span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-brand-400 rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               )
-            }) ?? <p className="text-sm text-gray-300 py-8 text-center">No data yet</p>}
+            }) ?? <p className="text-sm text-slate-300 py-8 text-center">No data yet</p>}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <h2 className="text-sm font-semibold text-gray-800 mb-5">Quick actions</h2>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <h2 className="text-sm font-semibold text-slate-800 mb-5">Quick actions</h2>
           <div className="space-y-3">
             {[
               { href: '/admin/listings',   label: 'Review pending listings', desc: `${data?.pendingReview ?? 0} awaiting approval` },
@@ -76,12 +76,12 @@ export default function AdminOverviewPage() {
               { href: '/admin/analytics',  label: 'View full analytics',     desc: 'Traffic, revenue & conversions'                },
             ].map(a => (
               <Link key={a.href} href={a.href}
-                className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors group">
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-colors group">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">{a.label}</p>
-                  <p className="text-xs text-gray-400">{a.desc}</p>
+                  <p className="text-sm font-medium text-slate-800">{a.label}</p>
+                  <p className="text-xs text-slate-400">{a.desc}</p>
                 </div>
-                <ArrowRight size={15} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
+                <ArrowRight size={15} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
               </Link>
             ))}
           </div>

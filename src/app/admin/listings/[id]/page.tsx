@@ -13,8 +13,8 @@ const STATUS_BADGE: Record<string, string> = {
   PENDING_REVIEW: 'bg-amber-50 text-amber-700 border-amber-200',
   ACTIVE:         'bg-green-50 text-green-700 border-green-200',
   REJECTED:       'bg-red-50   text-red-700   border-red-200',
-  EXPIRED:        'bg-gray-50  text-gray-500  border-gray-200',
-  DRAFT:          'bg-gray-50  text-gray-500  border-gray-200',
+  EXPIRED:        'bg-slate-50  text-slate-500  border-slate-200',
+  DRAFT:          'bg-slate-50  text-slate-500  border-slate-200',
   SOLD_RENTED:    'bg-brand-50 text-brand-700 border-brand-200',
 }
 
@@ -55,7 +55,7 @@ export default function AdminListingPreview() {
     } catch { toast.error('Failed to update featured') }
   }
 
-  if (loading) return <div className="p-10 text-center text-sm text-gray-400">Loading...</div>
+  if (loading) return <div className="p-10 text-center text-sm text-slate-400">Loading...</div>
   if (!property) return null
 
   const primaryImage = property.images.find(i => i.isPrimary) ?? property.images[0]
@@ -67,12 +67,12 @@ export default function AdminListingPreview() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <Link href="/admin/listings"
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
             <ArrowLeft size={16} />
           </Link>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">{property.title}</h1>
-            <p className="text-sm text-gray-400 flex items-center gap-1 mt-0.5">
+            <h1 className="text-xl font-semibold text-slate-900">{property.title}</h1>
+            <p className="text-sm text-slate-400 flex items-center gap-1 mt-0.5">
               <MapPin size={12} />{property.localityName}, {property.cityName}
             </p>
           </div>
@@ -93,13 +93,13 @@ export default function AdminListingPreview() {
         {/* Left — images + details */}
         <div className="lg:col-span-2 space-y-5">
           {/* Image gallery */}
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <div className="h-64 bg-gray-100 flex items-center justify-center">
+          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <div className="h-64 bg-slate-100 flex items-center justify-center">
               {displayImg ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={displayImg.url} alt={property.title} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-gray-200 text-5xl">⌂</span>
+                <span className="text-slate-200 text-5xl">⌂</span>
               )}
             </div>
             {property.images.length > 1 && (
@@ -117,27 +117,27 @@ export default function AdminListingPreview() {
           </div>
 
           {/* Key specs */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4">Details</h2>
+          <div className="bg-white rounded-2xl border border-slate-100 p-5">
+            <h2 className="text-sm font-semibold text-slate-700 mb-4">Details</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {property.bedrooms !== null && (
                 <div className="flex items-center gap-2">
                   <Bed size={15} className="text-brand-400 shrink-0" />
-                  <div><p className="text-xs text-gray-400">Bedrooms</p><p className="text-sm font-medium">{property.bedrooms} BHK</p></div>
+                  <div><p className="text-xs text-slate-400">Bedrooms</p><p className="text-sm font-medium">{property.bedrooms} BHK</p></div>
                 </div>
               )}
               {property.bathrooms !== null && (
                 <div className="flex items-center gap-2">
                   <Bath size={15} className="text-brand-400 shrink-0" />
-                  <div><p className="text-xs text-gray-400">Bathrooms</p><p className="text-sm font-medium">{property.bathrooms}</p></div>
+                  <div><p className="text-xs text-slate-400">Bathrooms</p><p className="text-sm font-medium">{property.bathrooms}</p></div>
                 </div>
               )}
               <div className="flex items-center gap-2">
                 <Maximize2 size={15} className="text-brand-400 shrink-0" />
-                <div><p className="text-xs text-gray-400">Area</p><p className="text-sm font-medium">{property.areaSqft.toLocaleString()} sqft</p></div>
+                <div><p className="text-xs text-slate-400">Area</p><p className="text-sm font-medium">{property.areaSqft.toLocaleString()} sqft</p></div>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-100 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 text-sm">
               {[
                 ['Type',        PROPERTY_TYPE_LABELS[property.propertyType]],
                 ['Listing',     LISTING_TYPE_LABELS[property.listingType]],
@@ -146,13 +146,13 @@ export default function AdminListingPreview() {
                 ['Floor',       property.floorNumber != null ? `${property.floorNumber} / ${property.totalFloors ?? '?'}` : '—'],
                 ['Parking',     property.parkingAvailable ? 'Yes' : 'No'],
               ].map(([label, value]) => (
-                <div key={label}><p className="text-xs text-gray-400">{label}</p><p className="font-medium text-gray-800">{value}</p></div>
+                <div key={label}><p className="text-xs text-slate-400">{label}</p><p className="font-medium text-slate-800">{value}</p></div>
               ))}
             </div>
             {property.description && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <p className="text-xs text-gray-400 mb-1">Description</p>
-                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{property.description}</p>
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <p className="text-xs text-slate-400 mb-1">Description</p>
+                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{property.description}</p>
               </div>
             )}
           </div>
@@ -164,10 +164,10 @@ export default function AdminListingPreview() {
         {/* Right — actions + owner */}
         <div className="space-y-4">
           {/* Price */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <div className="bg-white rounded-2xl border border-slate-100 p-5">
             <p className="text-2xl font-bold text-brand-600">{formatPrice(property.price, property.priceUnit)}</p>
             {property.priceNegotiable && <p className="text-xs text-green-600 font-medium mt-0.5">Negotiable</p>}
-            <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400 space-y-1">
+            <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400 space-y-1">
               <p>{property.viewsCount} views · {property.inquiryCount} inquiries</p>
               {property.rejectionReason && (
                 <p className="text-red-500">Rejected: {property.rejectionReason}</p>
@@ -176,8 +176,8 @@ export default function AdminListingPreview() {
           </div>
 
           {/* Moderation actions */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</p>
+          <div className="bg-white rounded-2xl border border-slate-100 p-5 space-y-3">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</p>
             {property.status === 'PENDING_REVIEW' && (
               <>
                 <button onClick={approve}
@@ -197,16 +197,16 @@ export default function AdminListingPreview() {
           </div>
 
           {/* Owner */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Owner</p>
+          <div className="bg-white rounded-2xl border border-slate-100 p-5">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Owner</p>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-sm font-medium shrink-0">
                 {property.owner.name[0].toUpperCase()}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">{property.owner.name}</p>
-                <p className="text-xs text-gray-400 capitalize">{property.owner.role.toLowerCase()}</p>
-                {property.owner.phone && <p className="text-xs text-gray-400">{property.owner.phone}</p>}
+                <p className="text-sm font-medium text-slate-800 truncate">{property.owner.name}</p>
+                <p className="text-xs text-slate-400 capitalize">{property.owner.role.toLowerCase()}</p>
+                {property.owner.phone && <p className="text-xs text-slate-400">{property.owner.phone}</p>}
               </div>
             </div>
           </div>
@@ -259,21 +259,21 @@ function VerificationDocs({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+    <div className="bg-white rounded-2xl border border-slate-100 p-5">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+        <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
           <ShieldCheck size={15} className="text-brand-600" />
           Verification Documents
         </h2>
-        <span className="text-xs text-gray-400">{documents.length} uploaded</span>
+        <span className="text-xs text-slate-400">{documents.length} uploaded</span>
       </div>
 
       {documents.length === 0 ? (
-        <p className="text-sm text-gray-400 italic">
+        <p className="text-sm text-slate-400 italic">
           The owner has not uploaded any verification documents yet.
         </p>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-slate-100">
           {documents.map((doc) => {
             const ext = (doc.url.split('.').pop() || '').toLowerCase()
             const isPdf = ext === 'pdf'
@@ -284,8 +284,8 @@ function VerificationDocs({
                   <FileText size={16} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-800">{DOC_LABELS[doc.docType]}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-medium text-slate-800">{DOC_LABELS[doc.docType]}</p>
+                  <p className="text-xs text-slate-400">
                     {doc.label ?? `.${ext || 'file'}`}
                   </p>
                 </div>

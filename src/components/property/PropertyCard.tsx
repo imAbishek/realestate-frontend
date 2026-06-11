@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin, Bed, Bath, Maximize2, BadgeCheck } from 'lucide-react'
 import type { PropertyCard, ListingType } from '@/types'
 import Badge, { type BadgeTone } from '@/components/ui/Badge'
+import ImagePlaceholder from '@/components/property/ImagePlaceholder'
 import { formatPrice, LISTING_TYPE_LABELS, bedroomLabel } from '@/lib/utils'
 
 const LISTING_TONE: Record<ListingType, BadgeTone> = { SALE: 'green', RENT: 'brand', PG: 'purple' }
@@ -17,9 +18,7 @@ export default function PropertyCard({ property }: { property: PropertyCard }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={primaryImageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-slate-50">
-            <svg className="w-12 h-12 text-slate-200" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 3L21 12V21H15V15H9V21H3V12Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
-          </div>
+          <ImagePlaceholder label={false} />
         )}
         <div className="absolute top-3 left-3 flex gap-1.5">
           <Badge tone={LISTING_TONE[listingType]}>{LISTING_TYPE_LABELS[listingType]}</Badge>

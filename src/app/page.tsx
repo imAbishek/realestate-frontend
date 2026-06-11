@@ -74,7 +74,7 @@ export default async function HomePage() {
         <div className="-mt-12 relative z-10 bg-white rounded-2xl shadow-card border border-slate-100 grid grid-cols-3 divide-x divide-slate-100 py-6">
           <Stat value={`${totalListings.toLocaleString('en-IN')}${totalListings ? '+' : ''}`} label="Active listings" />
           <Stat value={`${localities.length || '—'}`} label="Localities covered" />
-          <Stat value="0%" label="Brokerage" />
+          <Stat value="₹0" label="Brokerage — ever" />
         </div>
       </div>
 

@@ -26,13 +26,13 @@ type SidebarProps = {
 
 function Sidebar({ mobile = false, pathname, userName, userEmail, onNavigate, onLogout }: SidebarProps) {
   return (
-    <aside className={`${mobile ? 'w-full' : 'w-56 shrink-0'} bg-gray-900 min-h-screen flex flex-col`}>
+    <aside className={`${mobile ? 'w-full' : 'w-56 shrink-0'} bg-slate-900 min-h-screen flex flex-col`}>
       {/* Logo */}
-      <div className="flex items-center gap-2 px-5 py-5 border-b border-gray-800">
+      <div className="flex items-center gap-2 px-5 py-5 border-b border-slate-800">
         <ShieldCheck size={18} className="text-brand-400" />
         <div>
           <p className="text-white text-sm font-semibold">PropFind</p>
-          <p className="text-gray-500 text-xs">Admin panel</p>
+          <p className="text-slate-500 text-xs">Admin panel</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ function Sidebar({ mobile = false, pathname, userName, userEmail, onNavigate, on
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
                 ${active
                   ? 'bg-brand-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
               <Icon size={16} />
               {label}
             </Link>
@@ -55,18 +55,18 @@ function Sidebar({ mobile = false, pathname, userName, userEmail, onNavigate, on
       </nav>
 
       {/* User + logout */}
-      <div className="px-3 py-4 border-t border-gray-800">
+      <div className="px-3 py-4 border-t border-slate-800">
         <div className="flex items-center gap-2 px-3 mb-3">
           <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-xs font-medium">
             {userName?.[0]?.toUpperCase()}
           </div>
           <div className="min-w-0">
             <p className="text-white text-xs font-medium truncate">{userName}</p>
-            <p className="text-gray-500 text-xs truncate">{userEmail}</p>
+            <p className="text-slate-500 text-xs truncate">{userEmail}</p>
           </div>
         </div>
         <button onClick={onLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors">
+          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors">
           <LogOut size={15} /> Sign out
         </button>
       </div>
@@ -96,7 +96,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-slate-50">
       {/* Desktop sidebar */}
       <div className="hidden md:block">
         <div className="fixed top-0 left-0 h-full w-56 z-30">
@@ -115,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main */}
       <div className="flex-1 md:ml-56 flex flex-col min-h-screen">
         {/* Mobile top bar */}
-        <div className="md:hidden flex items-center gap-3 bg-gray-900 px-4 py-3 sticky top-0 z-20">
+        <div className="md:hidden flex items-center gap-3 bg-slate-900 px-4 py-3 sticky top-0 z-20">
           <button onClick={() => setSideOpen(true)} className="text-white">
             <Menu size={20} />
           </button>

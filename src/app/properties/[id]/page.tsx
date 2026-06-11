@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation'
 import {
   MapPin, Bed, Bath, Maximize2, Car, Layers, BadgeCheck, Eye, MessageCircle,
-  Phone, Ruler, Droplets, Compass, Building2, ShieldCheck,
+  Phone, Ruler, Droplets, Compass, ShieldCheck,
 } from 'lucide-react'
 import { propertyApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import InquiryForm from '@/components/property/InquiryForm'
+import ImagePlaceholder from '@/components/property/ImagePlaceholder'
 import Card from '@/components/ui/Card'
 import Badge, { type BadgeTone } from '@/components/ui/Badge'
 import { buttonClasses } from '@/components/ui/Button'
@@ -133,9 +134,7 @@ export default async function PropertyDetailPage({ params }: Props) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={primaryImage.url} alt={property.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building2 className="w-16 h-16 text-slate-200" />
-                </div>
+                <ImagePlaceholder />
               )}
               <div className="absolute top-4 left-4 flex gap-2">
                 <Badge tone={LISTING_TONE[property.listingType]}>{LISTING_TYPE_LABELS[property.listingType]}</Badge>

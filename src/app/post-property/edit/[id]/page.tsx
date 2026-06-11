@@ -15,7 +15,7 @@ import { Upload, X, AlertCircle } from 'lucide-react'
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
       {children}
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
@@ -46,7 +46,7 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   ACTIVE:         { label: 'Active',       cls: 'bg-green-50 text-green-700 border-green-200' },
   PENDING_REVIEW: { label: 'Under review', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
   REJECTED:       { label: 'Rejected',     cls: 'bg-red-50 text-red-700 border-red-200' },
-  DRAFT:          { label: 'Draft',        cls: 'bg-gray-50 text-gray-500 border-gray-200' },
+  DRAFT:          { label: 'Draft',        cls: 'bg-slate-50 text-slate-500 border-slate-200' },
 }
 
 export default function EditPropertyPage() {
@@ -170,17 +170,17 @@ export default function EditPropertyPage() {
     setNewImages(prev => [...prev, ...files])
   }
 
-  const inputCls  = "w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
+  const inputCls  = "w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
   const selectCls = inputCls + " bg-white"
 
   if (fetching) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-10">
         <div className="space-y-4">
-          <div className="h-8 bg-gray-100 rounded-xl animate-pulse w-48" />
-          <div className="h-4 bg-gray-100 rounded animate-pulse w-72" />
-          <div className="h-14 bg-gray-100 rounded-2xl animate-pulse mt-8" />
-          <div className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
+          <div className="h-8 bg-slate-100 rounded-xl animate-pulse w-48" />
+          <div className="h-4 bg-slate-100 rounded animate-pulse w-72" />
+          <div className="h-14 bg-slate-100 rounded-2xl animate-pulse mt-8" />
+          <div className="h-64 bg-slate-100 rounded-2xl animate-pulse" />
         </div>
       </div>
     )
@@ -194,8 +194,8 @@ export default function EditPropertyPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-2 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Edit listing</h1>
-          {property && <p className="text-sm text-gray-500 mt-1 truncate max-w-sm">{property.title}</p>}
+          <h1 className="text-2xl font-semibold text-slate-900">Edit listing</h1>
+          {property && <p className="text-sm text-slate-500 mt-1 truncate max-w-sm">{property.title}</p>}
         </div>
         {statusConf && (
           <span className={`text-xs font-medium px-3 py-1 rounded-full border ${statusConf.cls}`}>
@@ -217,13 +217,13 @@ export default function EditPropertyPage() {
             <button type="button" onClick={() => setStep(i)}
               className="flex flex-col items-center group">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors
-                ${i < step ? 'bg-green-500 text-white group-hover:bg-green-600' : i === step ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-gray-200'}`}>
+                ${i < step ? 'bg-green-500 text-white group-hover:bg-green-600' : i === step ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'}`}>
                 {i < step ? '✓' : i + 1}
               </div>
-              <span className={`text-xs mt-1.5 whitespace-nowrap ${i === step ? 'text-brand-600 font-medium' : i < step ? 'text-green-600 group-hover:underline' : 'text-gray-400 group-hover:text-gray-600'}`}>{s}</span>
+              <span className={`text-xs mt-1.5 whitespace-nowrap ${i === step ? 'text-brand-600 font-medium' : i < step ? 'text-green-600 group-hover:underline' : 'text-slate-400 group-hover:text-slate-600'}`}>{s}</span>
             </button>
             {i < STEPS.length - 1 && (
-              <div className={`flex-1 h-0.5 mt-4 mx-2 ${i < step ? 'bg-green-400' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-0.5 mt-4 mx-2 ${i < step ? 'bg-green-400' : 'bg-slate-200'}`} />
             )}
           </Fragment>
         ))}
@@ -233,7 +233,7 @@ export default function EditPropertyPage() {
         onSubmit={handleSubmit(onSubmit, () => toast.error('Please complete all required fields'))}
         onKeyDown={e => { if (e.key === 'Enter' && step < STEPS.length - 1) e.preventDefault() }}
       >
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
 
           {/* STEP 0: Basic info */}
           {step === 0 && (
@@ -243,7 +243,7 @@ export default function EditPropertyPage() {
                   {(['SALE','RENT','PG'] as const).map(t => (
                     <button key={t} type="button" onClick={() => setValue('listingType', t)}
                       className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors
-                        ${listingType === t ? 'bg-brand-600 text-white border-brand-600' : 'border-gray-200 text-gray-600 hover:border-brand-300'}`}>
+                        ${listingType === t ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
                       {t === 'SALE' ? 'Sale' : t === 'RENT' ? 'Rent' : 'PG'}
                     </button>
                   ))}
@@ -314,7 +314,7 @@ export default function EditPropertyPage() {
 
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" {...register('priceNegotiable')} className="accent-brand-600 w-4 h-4 rounded" />
-                <span className="text-sm text-gray-600">Price is negotiable</span>
+                <span className="text-sm text-slate-600">Price is negotiable</span>
               </label>
 
               <div className="grid grid-cols-2 gap-4">
@@ -344,7 +344,7 @@ export default function EditPropertyPage() {
 
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" {...register('parkingAvailable')} className="accent-brand-600 w-4 h-4 rounded" />
-                <span className="text-sm text-gray-600">Parking available</span>
+                <span className="text-sm text-slate-600">Parking available</span>
               </label>
             </>
           )}
@@ -352,15 +352,15 @@ export default function EditPropertyPage() {
           {/* STEP 3: Photos */}
           {step === 3 && (
             <div className="space-y-5">
-              <p className="text-sm text-gray-500">Manage photos for your listing. First photo will be the cover image.</p>
+              <p className="text-sm text-slate-500">Manage photos for your listing. First photo will be the cover image.</p>
 
               {/* Existing images */}
               {existingImages.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Current photos</p>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Current photos</p>
                   <div className="grid grid-cols-4 gap-2">
                     {existingImages.map((img, i) => (
-                      <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                      <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={img.url} alt="" className="w-full h-full object-cover" />
                         {(img.isPrimary || i === 0) && (
@@ -368,7 +368,7 @@ export default function EditPropertyPage() {
                         )}
                         <button type="button" onClick={() => handleDeleteExistingImage(img.id)}
                           className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow hover:bg-red-50 transition-colors">
-                          <X size={12} className="text-gray-600" />
+                          <X size={12} className="text-slate-600" />
                         </button>
                       </div>
                     ))}
@@ -379,11 +379,11 @@ export default function EditPropertyPage() {
               {/* Upload new */}
               {existingImages.length + newImages.length < 20 && (
                 <div>
-                  {existingImages.length > 0 && <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Add more photos</p>}
-                  <label className="block border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center cursor-pointer hover:border-brand-300 transition-colors">
-                    <Upload size={24} className="mx-auto text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500">Click to upload photos</p>
-                    <p className="text-xs text-gray-400 mt-1">JPEG, PNG or WebP — max 10MB each</p>
+                  {existingImages.length > 0 && <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Add more photos</p>}
+                  <label className="block border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center cursor-pointer hover:border-brand-300 transition-colors">
+                    <Upload size={24} className="mx-auto text-slate-300 mb-2" />
+                    <p className="text-sm text-slate-500">Click to upload photos</p>
+                    <p className="text-xs text-slate-400 mt-1">JPEG, PNG or WebP — max 10MB each</p>
                     <input type="file" accept="image/*" multiple className="hidden" onChange={handleNewImageDrop} />
                   </label>
                 </div>
@@ -392,15 +392,15 @@ export default function EditPropertyPage() {
               {/* New image previews */}
               {newImages.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">New photos (will be uploaded on save)</p>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">New photos (will be uploaded on save)</p>
                   <div className="grid grid-cols-4 gap-2">
                     {newImagePreviews.map((url, i) => (
-                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={url} alt="" className="w-full h-full object-cover" />
                         <button type="button" onClick={() => setNewImages(prev => prev.filter((_, j) => j !== i))}
                           className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow">
-                          <X size={12} className="text-gray-600" />
+                          <X size={12} className="text-slate-600" />
                         </button>
                       </div>
                     ))}
@@ -409,7 +409,7 @@ export default function EditPropertyPage() {
               )}
 
               {existingImages.length === 0 && newImages.length === 0 && (
-                <p className="text-xs text-gray-400 text-center py-2">No photos yet. Add at least one to improve visibility.</p>
+                <p className="text-xs text-slate-400 text-center py-2">No photos yet. Add at least one to improve visibility.</p>
               )}
             </div>
           )}
@@ -419,7 +419,7 @@ export default function EditPropertyPage() {
         <div className="flex gap-3 mt-6">
           {step > 0 && (
             <button type="button" onClick={() => setStep(s => s - 1)}
-              className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">
+              className="flex-1 border border-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
               ← Back
             </button>
           )}

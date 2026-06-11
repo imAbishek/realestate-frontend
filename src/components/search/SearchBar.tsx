@@ -38,8 +38,8 @@ export default function SearchBar({ compact = false, currentListingType }: Props
   }
 
   if (compact) return (
-    <form onSubmit={handleCompactSearch} className="w-full flex gap-2 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm">
-      <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Search city (e.g. Coimbatore)..." className="flex-1 min-w-0 px-3 text-sm outline-none text-gray-700 placeholder-gray-400" />
+    <form onSubmit={handleCompactSearch} className="w-full flex gap-2 bg-white rounded-xl border border-slate-200 p-1.5 shadow-sm">
+      <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Search city (e.g. Coimbatore)..." className="flex-1 min-w-0 px-3 text-sm outline-none text-slate-700 placeholder-slate-400" />
       <button type="submit" className="shrink-0 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1.5 hover:bg-brand-800 transition-colors"><Search size={15} />Search</button>
     </form>
   )
@@ -55,8 +55,8 @@ export default function SearchBar({ compact = false, currentListingType }: Props
         ))}
       </div>
       <form onSubmit={handleSearch} className="bg-white rounded-b-2xl rounded-tr-2xl p-2 flex flex-wrap sm:flex-nowrap gap-2 shadow-xl max-w-2xl">
-        <input value={city} onChange={e => setCity(e.target.value)} placeholder="City (e.g. Coimbatore)" className="w-full sm:w-36 px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand-400 text-gray-700 placeholder-gray-400" />
-        <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Locality, project or keyword..." className="flex-1 min-w-0 px-3 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand-400 text-gray-700 placeholder-gray-400" />
+        <input value={city} onChange={e => setCity(e.target.value)} placeholder="City (e.g. Coimbatore)" className="w-full sm:w-36 px-3 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand-400 text-slate-700 placeholder-slate-400" />
+        <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="Locality, project or keyword..." className="flex-1 min-w-0 px-3 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-brand-400 text-slate-700 placeholder-slate-400" />
         <button type="submit" className="w-full sm:w-auto bg-accent-400 hover:bg-accent-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors"><Search size={16} />Search</button>
       </form>
     </div>

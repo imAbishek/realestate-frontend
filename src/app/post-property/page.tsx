@@ -15,7 +15,7 @@ import { Upload, X } from 'lucide-react'
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
       {children}
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
@@ -104,13 +104,13 @@ export default function PostPropertyPage() {
     setImages(prev => [...prev, ...files])
   }
 
-  const inputCls = "w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
+  const inputCls = "w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
   const selectCls = inputCls + " bg-white"
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-2">Post your property</h1>
-      <p className="text-sm text-gray-500 mb-8">Fill in the details below. Your listing goes live after a quick review.</p>
+      <h1 className="text-2xl font-semibold text-slate-900 mb-2">Post your property</h1>
+      <p className="text-sm text-slate-500 mb-8">Fill in the details below. Your listing goes live after a quick review.</p>
 
       {/* Step progress */}
       <div className="flex items-start mb-10">
@@ -119,13 +119,13 @@ export default function PostPropertyPage() {
             <button type="button" onClick={() => { if (i <= step) setStep(i) }}
               className="flex flex-col items-center group">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors
-                ${i < step ? 'bg-green-500 text-white group-hover:bg-green-600 cursor-pointer' : i === step ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-400 cursor-default'}`}>
+                ${i < step ? 'bg-green-500 text-white group-hover:bg-green-600 cursor-pointer' : i === step ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-400 cursor-default'}`}>
                 {i < step ? '✓' : i + 1}
               </div>
-              <span className={`text-xs mt-1.5 whitespace-nowrap ${i === step ? 'text-brand-600 font-medium' : i < step ? 'text-green-600 group-hover:underline' : 'text-gray-400'}`}>{s}</span>
+              <span className={`text-xs mt-1.5 whitespace-nowrap ${i === step ? 'text-brand-600 font-medium' : i < step ? 'text-green-600 group-hover:underline' : 'text-slate-400'}`}>{s}</span>
             </button>
             {i < STEPS.length - 1 && (
-              <div className={`flex-1 h-0.5 mt-4 mx-2 ${i < step ? 'bg-green-400' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-0.5 mt-4 mx-2 ${i < step ? 'bg-green-400' : 'bg-slate-200'}`} />
             )}
           </Fragment>
         ))}
@@ -135,7 +135,7 @@ export default function PostPropertyPage() {
         onSubmit={handleSubmit(onSubmit, () => toast.error('Please complete all required fields'))}
         onKeyDown={e => { if (e.key === 'Enter' && step < STEPS.length - 1) e.preventDefault() }}
       >
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
 
           {/* STEP 0: Basic info */}
           {step === 0 && (
@@ -145,7 +145,7 @@ export default function PostPropertyPage() {
                   {(['SALE','RENT','PG'] as const).map(t => (
                     <button key={t} type="button" onClick={() => setValue('listingType', t)}
                       className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors
-                        ${listingType === t ? 'bg-brand-600 text-white border-brand-600' : 'border-gray-200 text-gray-600 hover:border-brand-300'}`}>
+                        ${listingType === t ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
                       {t === 'SALE' ? 'Sale' : t === 'RENT' ? 'Rent' : 'PG'}
                     </button>
                   ))}
@@ -216,7 +216,7 @@ export default function PostPropertyPage() {
 
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" {...register('priceNegotiable')} className="accent-brand-600 w-4 h-4 rounded" />
-                <span className="text-sm text-gray-600">Price is negotiable</span>
+                <span className="text-sm text-slate-600">Price is negotiable</span>
               </label>
 
               <div className="grid grid-cols-2 gap-4">
@@ -246,7 +246,7 @@ export default function PostPropertyPage() {
 
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" {...register('parkingAvailable')} className="accent-brand-600 w-4 h-4 rounded" />
-                <span className="text-sm text-gray-600">Parking available</span>
+                <span className="text-sm text-slate-600">Parking available</span>
               </label>
             </>
           )}
@@ -254,18 +254,18 @@ export default function PostPropertyPage() {
           {/* STEP 3: Photos */}
           {step === 3 && (
             <div>
-              <p className="text-sm text-gray-500 mb-4">Upload up to 20 photos. First photo will be the cover image.</p>
-              <label className="block border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center cursor-pointer hover:border-brand-300 transition-colors">
-                <Upload size={28} className="mx-auto text-gray-300 mb-2" />
-                <p className="text-sm text-gray-500">Click to upload or drag photos here</p>
-                <p className="text-xs text-gray-400 mt-1">JPEG, PNG or WebP — max 10MB each</p>
+              <p className="text-sm text-slate-500 mb-4">Upload up to 20 photos. First photo will be the cover image.</p>
+              <label className="block border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center cursor-pointer hover:border-brand-300 transition-colors">
+                <Upload size={28} className="mx-auto text-slate-300 mb-2" />
+                <p className="text-sm text-slate-500">Click to upload or drag photos here</p>
+                <p className="text-xs text-slate-400 mt-1">JPEG, PNG or WebP — max 10MB each</p>
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageDrop} />
               </label>
 
               {imagePreviews.length > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                   {imagePreviews.map((url, i) => (
-                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       {i === 0 && (
@@ -273,7 +273,7 @@ export default function PostPropertyPage() {
                       )}
                       <button type="button" onClick={() => setImages(prev => prev.filter((_, j) => j !== i))}
                         className="absolute top-1 right-1 bg-white rounded-full p-0.5 shadow">
-                        <X size={12} className="text-gray-600" />
+                        <X size={12} className="text-slate-600" />
                       </button>
                     </div>
                   ))}
@@ -288,7 +288,7 @@ export default function PostPropertyPage() {
         <div className="flex gap-3 mt-6">
           {step > 0 && (
             <button type="button" onClick={() => setStep(s => s - 1)}
-              className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">
+              className="flex-1 border border-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-50 transition-colors">
               ← Back
             </button>
           )}
