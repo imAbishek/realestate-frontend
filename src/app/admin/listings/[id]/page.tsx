@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { adminApi } from '@/lib/api'
 import { formatPrice, LISTING_TYPE_LABELS, PROPERTY_TYPE_LABELS, FURNISHING_LABELS } from '@/lib/utils'
 import type { PropertyDetail, PropertyDocument } from '@/types'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { ArrowLeft, CheckCircle, XCircle, Star, StarOff, Bed, Bath, Maximize2, MapPin, FileText, ExternalLink, ShieldCheck } from 'lucide-react'
 
 const STATUS_BADGE: Record<string, string> = {
@@ -36,11 +37,13 @@ export default function AdminListingPreview() {
     catch { toast.error('Failed to approve') }
   }
 
-  async function reject() {
-    const reason = prompt('Rejection reason (will be shown to the seller):')
-    if (!reason?.trim()) return
+  const [rejectOpen, setRejectOpen] = useState(false)
+
+  async function reject(reason?: string) {
+    if (!reason) return
     try   { await adminApi.reject(id, reason); toast.success('Rejected'); router.push('/admin/listings') }
     catch { toast.error('Failed to reject') }
+    finally { setRejectOpen(false) }
   }
 
   async function toggleFeatured() {
@@ -181,7 +184,7 @@ export default function AdminListingPreview() {
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">
                   <CheckCircle size={14} /> Approve
                 </button>
-                <button onClick={reject}
+                <button onClick={() => setRejectOpen(true)}
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">
                   <XCircle size={14} /> Reject
                 </button>
@@ -209,6 +212,18 @@ export default function AdminListingPreview() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={rejectOpen}
+        tone="danger"
+        title="Reject this listing?"
+        message={`"${property.title}" will be rejected. The reason below is shown to the seller.`}
+        confirmLabel="Reject listing"
+        withReason reasonRequired
+        reasonPlaceholder="Rejection reason (required, shown to the seller)..."
+        onConfirm={reject}
+        onClose={() => setRejectOpen(false)}
+      />
     </div>
   )
 }

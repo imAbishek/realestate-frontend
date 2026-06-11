@@ -10,6 +10,7 @@ import type { PropertyCard, Page } from '@/types'
 import { PlusCircle, Eye, Trash2, Edit, BadgeCheck, Clock, XCircle } from 'lucide-react'
 import IncomingBookings from '@/components/dashboard/IncomingBookings'
 import Card from '@/components/ui/Card'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { buttonClasses } from '@/components/ui/Button'
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
@@ -38,13 +39,16 @@ export default function DashboardPage() {
       .finally(() => setLoading(false))
   }, [page, _hasHydrated])
 
-  async function handleDelete(id: string, title: string) {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
+  const [deleting, setDeleting] = useState<{ id: string; title: string } | null>(null)
+
+  async function handleDelete() {
+    if (!deleting) return
     try {
-      await propertyApi.delete(id)
+      await propertyApi.delete(deleting.id)
       toast.success('Listing deleted')
-      setData(prev => prev ? { ...prev, content: prev.content.filter(p => p.id !== id) } : prev)
+      setData(prev => prev ? { ...prev, content: prev.content.filter(p => p.id !== deleting.id) } : prev)
     } catch { toast.error('Could not delete listing') }
+    finally { setDeleting(null) }
   }
 
   if (!isLoggedIn) return null
@@ -147,7 +151,7 @@ export default function DashboardPage() {
                         className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
                         <Edit size={15} />
                       </Link>
-                      <button onClick={() => handleDelete(property.id, property.title)}
+                      <button onClick={() => setDeleting({ id: property.id, title: property.title })}
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
                         <Trash2 size={15} />
                       </button>
@@ -175,6 +179,16 @@ export default function DashboardPage() {
         {/* Site visit requests on my listings */}
         <IncomingBookings />
       </div>
+
+      <ConfirmDialog
+        open={deleting !== null}
+        tone="danger"
+        title="Delete this listing?"
+        message={deleting ? `"${deleting.title}" will be permanently deleted. This cannot be undone.` : undefined}
+        confirmLabel="Delete listing"
+        onConfirm={handleDelete}
+        onClose={() => setDeleting(null)}
+      />
     </div>
   )
 }

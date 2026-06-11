@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { adminApi } from '@/lib/api'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import type { PropertyCard } from '@/types'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { CheckCircle, XCircle, Star, StarOff, Eye, Search } from 'lucide-react'
 
 const STATUS_TABS = ['PENDING_REVIEW','ACTIVE','REJECTED','EXPIRED','ALL'] as const
@@ -30,18 +31,28 @@ export default function AdminListingsPage() {
   const [total,     setTotal]     = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [search,    setSearch]    = useState('')
+  // Debounced copy of `search` — the server query searches ALL pages (title,
+  // locality, city); filtering the fetched page client-side missed everything
+  // beyond the current page.
+  const [query,     setQuery]     = useState('')
+
+  // Debounce keystrokes → query, and jump back to page 0 for the new result set.
+  useEffect(() => {
+    const t = setTimeout(() => { setQuery(search.trim()); setPage(0) }, 350)
+    return () => clearTimeout(t)
+  }, [search])
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
       const status = activeTab === 'ALL' ? undefined : activeTab
-      const res    = await adminApi.getAllListings(status, page)
+      const res    = await adminApi.getAllListings(status, page, query || undefined)
       setListings(res.data.content)
       setTotal(res.data.totalElements)
       setTotalPages(res.data.totalPages)
     } catch { toast.error('Failed to load listings') }
     finally   { setLoading(false) }
-  }, [activeTab, page])
+  }, [activeTab, page, query])
 
   // Data-fetch effect: loads listings from the server when the tab/page changes. The
   // synchronous setLoading inside load() is the intended loading indicator, not the
@@ -54,21 +65,19 @@ export default function AdminListingsPage() {
     catch { toast.error('Failed to approve') }
   }
 
-  async function reject(id: string) {
-    const reason = prompt('Rejection reason (will be shown to the seller):')
-    if (!reason?.trim()) return
-    try   { await adminApi.reject(id, reason); toast.success('Rejected'); load() }
+  const [rejecting, setRejecting] = useState<{ id: string; title: string } | null>(null)
+
+  async function reject(reason?: string) {
+    if (!rejecting || !reason) return
+    try   { await adminApi.reject(rejecting.id, reason); toast.success('Rejected'); load() }
     catch { toast.error('Failed to reject') }
+    finally { setRejecting(null) }
   }
 
   async function toggleFeatured(id: string, current: boolean) {
     try   { await adminApi.toggleFeatured(id); toast.success(current ? 'Removed from featured' : 'Marked as featured'); load() }
     catch { toast.error('Failed to update') }
   }
-
-  const filtered = search
-    ? listings.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.cityName.toLowerCase().includes(search.toLowerCase()))
-    : listings
 
   return (
     <div className="space-y-5">
@@ -99,7 +108,7 @@ export default function AdminListingsPage() {
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         {loading ? (
           <div className="p-10 text-center text-sm text-gray-400">Loading...</div>
-        ) : filtered.length === 0 ? (
+        ) : listings.length === 0 ? (
           <div className="p-10 text-center text-sm text-gray-400">No listings found.</div>
         ) : (
           <>
@@ -109,7 +118,7 @@ export default function AdminListingsPage() {
                 <span>Property</span><span>Price</span><span>Status</span><span>Actions</span>
               </div>
               <div className="divide-y divide-gray-50">
-                {filtered.map(p => (
+                {listings.map(p => (
                   <div key={p.id} className="grid grid-cols-[2fr_1fr_1fr_120px] gap-4 px-5 py-4 items-center hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-12 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
@@ -139,7 +148,7 @@ export default function AdminListingsPage() {
                             className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Approve">
                             <CheckCircle size={14} />
                           </button>
-                          <button onClick={() => reject(p.id)}
+                          <button onClick={() => setRejecting({ id: p.id, title: p.title })}
                             className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
                             <XCircle size={14} />
                           </button>
@@ -157,7 +166,7 @@ export default function AdminListingsPage() {
 
             {/* Mobile card view — hidden on md+ */}
             <div className="md:hidden divide-y divide-gray-50">
-              {filtered.map(p => (
+              {listings.map(p => (
                 <div key={p.id} className="p-4 space-y-3">
                   <div className="flex items-start gap-3">
                     <div className="w-14 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
@@ -190,7 +199,7 @@ export default function AdminListingsPage() {
                             className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Approve">
                             <CheckCircle size={14} />
                           </button>
-                          <button onClick={() => reject(p.id)}
+                          <button onClick={() => setRejecting({ id: p.id, title: p.title })}
                             className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject">
                             <XCircle size={14} />
                           </button>
@@ -208,7 +217,7 @@ export default function AdminListingsPage() {
 
             {/* Pagination */}
             <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100">
-              <span className="text-xs text-gray-400">Showing {filtered.length} of {total}</span>
+              <span className="text-xs text-gray-400">Showing {listings.length} of {total}</span>
               <div className="flex gap-2">
                 <button disabled={page === 0} onClick={() => setPage(p => p - 1)}
                   className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40">← Prev</button>
@@ -219,6 +228,18 @@ export default function AdminListingsPage() {
           </>
         )}
       </div>
+
+      <ConfirmDialog
+        open={rejecting !== null}
+        tone="danger"
+        title="Reject this listing?"
+        message={rejecting ? `"${rejecting.title}" will be rejected. The reason below is shown to the seller.` : undefined}
+        confirmLabel="Reject listing"
+        withReason reasonRequired
+        reasonPlaceholder="Rejection reason (required, shown to the seller)..."
+        onConfirm={reject}
+        onClose={() => setRejecting(null)}
+      />
     </div>
   )
 }

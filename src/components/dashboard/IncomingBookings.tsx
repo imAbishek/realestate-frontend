@@ -7,6 +7,7 @@ import { timeAgo } from '@/lib/utils'
 import type { Page, SiteVisitBooking, BookingStatus } from '@/types'
 import { CalendarClock, Phone, Mail, MapPin, XCircle, CheckCircle2, Clock3 } from 'lucide-react'
 import Card from '@/components/ui/Card'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; cls: string; icon: React.ReactNode }> = {
   REQUESTED: { label: 'Requested', cls: 'bg-amber-50 text-amber-700 border-amber-200', icon: <Clock3 size={12} /> },
@@ -29,9 +30,12 @@ export default function IncomingBookings() {
       .finally(() => setLoading(false))
   }, [page])
 
-  async function handleCancel(b: SiteVisitBooking) {
-    if (!confirm(`Cancel the site visit request from ${b.contactName}?`)) return
-    const reason = prompt('Reason for cancelling (optional):') || undefined
+  const [cancelling, setCancelling] = useState<SiteVisitBooking | null>(null)
+
+  async function handleCancel(reason?: string) {
+    if (!cancelling) return
+    const b = cancelling
+    setCancelling(null)
     const prev = data
     // optimistic flip to CANCELLED
     setData(d => d ? { ...d, content: d.content.map(x => x.id === b.id ? { ...x, status: 'CANCELLED', cancelReason: reason ?? null, cancelledBy: 'OWNER' } : x) } : d)
@@ -122,7 +126,7 @@ export default function IncomingBookings() {
                     {conf.icon}{conf.label}
                   </span>
                   {!cancelled && (
-                    <button onClick={() => handleCancel(b)}
+                    <button onClick={() => setCancelling(b)}
                       className="text-xs text-slate-400 hover:text-red-600 transition-colors">
                       Cancel
                     </button>
@@ -146,6 +150,19 @@ export default function IncomingBookings() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={cancelling !== null}
+        tone="danger"
+        title="Cancel this site visit?"
+        message={cancelling ? `The request from ${cancelling.contactName} will be cancelled.` : undefined}
+        confirmLabel="Cancel visit"
+        cancelLabel="Keep it"
+        withReason
+        reasonPlaceholder="Reason for cancelling (optional, shown to the visitor)..."
+        onConfirm={handleCancel}
+        onClose={() => setCancelling(null)}
+      />
     </Card>
   )
 }

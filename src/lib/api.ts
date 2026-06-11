@@ -94,11 +94,11 @@ export const adminApi = {
   getListing:     (id: string)             => api.get<PropertyDetail>(`/admin/listings/${id}`),
   getDocumentDownloadUrl: (propertyId: string, documentId: string) =>
     api.get<DocumentDownload>(`/admin/listings/${propertyId}/documents/${documentId}/download`),
-  getAllListings:  (status?: string, page = 0) => api.get('/admin/listings/all', { params: { status, page } }),
+  getAllListings:  (status?: string, page = 0, q?: string) => api.get('/admin/listings/all', { params: { status, page, ...(q ? { q } : {}) } }),
   approve:        (id: string)             => api.put(`/admin/listings/${id}/approve`),
   reject:         (id: string, reason: string) => api.put(`/admin/listings/${id}/reject`, { rejectionReason: reason }),
   toggleFeatured: (id: string)             => api.put(`/admin/listings/${id}/feature`),
-  getUsers:       (page = 0, role?: string) => api.get('/admin/users', { params: { page, ...(role ? { role } : {}) } }),
+  getUsers:       (page = 0, role?: string, q?: string) => api.get('/admin/users', { params: { page, ...(role ? { role } : {}), ...(q ? { q } : {}) } }),
   banUser:        (id: string, ban: boolean) => api.put(`/admin/users/${id}/ban`, null, { params: { ban } }),
   getOverview:    ()                       => api.get('/admin/analytics/overview'),
 }
