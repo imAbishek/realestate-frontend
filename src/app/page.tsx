@@ -8,12 +8,27 @@ import Stat from '@/components/ui/Stat'
 import { buttonClasses } from '@/components/ui/Button'
 import type { PropertyCard as PropertyCardType, City, Locality, Page } from '@/types'
 
+// ISR: re-render at most every 5 minutes. Without this the page is statically baked
+// ONCE at build time — and the Render free-tier backend sleeps after 15 idle minutes,
+// so build-time fetches time out and the page ships permanently with 0 listings,
+// "—" localities, and no Featured/Browse-by-locality sections.
+export const revalidate = 300
+
 export default async function HomePage() {
   const [featuredRes, citiesRes, countRes] = await Promise.allSettled([
     propertyApi.getFeatured(),
     searchApi.cities(),
     propertyApi.search({ size: 1 }),
   ])
+
+  // If the backend is unreachable during a background ISR regeneration, throw so
+  // Next keeps serving the last good page instead of caching a zeroed one. The
+  // failed request still wakes Render, so the next regeneration succeeds. (Never
+  // throw at build time or in dev — an asleep backend must not fail the build.)
+  const allFailed = [featuredRes, citiesRes, countRes].every(r => r.status === 'rejected')
+  if (allFailed && process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build') {
+    throw new Error('Backend unreachable — keeping the previously rendered homepage')
+  }
 
   const featured: PropertyCardType[] = featuredRes.status === 'fulfilled' ? featuredRes.value.data : []
   const cities: City[]               = citiesRes.status  === 'fulfilled' ? citiesRes.value.data : []
