@@ -7,6 +7,14 @@ export type ListingStatus   = 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'EXPIRED' 
 export type PriceUnit       = 'TOTAL' | 'PER_MONTH' | 'PER_SQFT'
 export type UserRole        = 'BUYER' | 'SELLER' | 'AGENT' | 'ADMIN'
 
+// ── Phase B enums (mirror Property entity) ─────────────────
+export type ListedBy          = 'OWNER' | 'PROMOTER'
+export type ApprovalAuthority = 'DTCP' | 'CMDA' | 'TNHB' | 'CMA' | 'RERA' | 'LOCAL' | 'OTHER' | 'NONE'
+export type OwnershipType     = 'SINGLE' | 'JOINT' | 'GIFT' | 'INHERITED' | 'COMPANY' | 'TRUST'
+export type SoilType          = 'RED' | 'BLACK' | 'ALLUVIAL' | 'LATERITE' | 'SANDY' | 'CLAY' | 'LOAM' | 'OTHER'
+export type WaterSource       = 'BOREWELL' | 'OPEN_WELL' | 'CANAL' | 'RIVER' | 'RAIN_FED' | 'NONE'
+export type ElectricService   = 'AVAILABLE_3PHASE' | 'AVAILABLE_1PHASE' | 'AGRI_CONNECTION' | 'NONE'
+
 export interface UserInfo {
   id: string; name: string; email: string; phone: string | null
   role: UserRole; isVerified: boolean; profilePhotoUrl: string | null
@@ -60,6 +68,16 @@ export interface PropertyDetail {
   viewsCount: number; inquiryCount: number; images: PropertyImage[]; amenities: Amenity[]
   owner: OwnerInfo; createdAt: string; expiresAt: string
   documents?: PropertyDocument[] | null
+
+  // ── Phase B: listed-by + plot/agri/promoter (null unless relevant to the property type) ──
+  listedBy: ListedBy | null
+  plotLengthFt: number | null; plotBreadthFt: number | null; plotAreaCents: number | null; roadWidthFt: number | null
+  boundaryWall: boolean | null; cornerPlot: boolean | null
+  approvalAuthority: ApprovalAuthority | null; ownershipType: OwnershipType | null
+  soilType: SoilType | null; waterSource: WaterSource | null; hasWell: boolean | null
+  electricService: ElectricService | null; cropCurrentlyGrown: string | null; fenced: boolean | null
+  promoterProjectName: string | null; promoterYearsExperience: number | null
+  promoterTotalProjects: number | null; promoterCitiesActive: string | null; promoterReraId: string | null
 }
 
 export interface SearchParams {

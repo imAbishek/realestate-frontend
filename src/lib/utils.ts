@@ -1,4 +1,7 @@
-import type { ListingType, PropertyType, FurnishingStatus, PriceUnit } from '@/types'
+import type {
+  ListingType, PropertyType, FurnishingStatus, PriceUnit,
+  ListedBy, ApprovalAuthority, OwnershipType, SoilType, WaterSource, ElectricService,
+} from '@/types'
 import { clsx, type ClassValue } from 'clsx'
 
 export function cn(...inputs: ClassValue[]) { return clsx(inputs) }
@@ -31,6 +34,36 @@ export const FURNISHING_LABELS: Record<FurnishingStatus, string> = {
 
 export function listingTypeBadgeClass(type: ListingType): string {
   return { SALE: 'bg-green-50 text-green-800 border border-green-200', RENT: 'bg-brand-50 text-brand-800 border border-brand-200', PG: 'bg-purple-50 text-purple-800 border border-purple-200' }[type]
+}
+
+// ── Phase B enum label maps ────────────────────────────────
+export const LISTED_BY_LABELS: Record<ListedBy, string> = {
+  OWNER: 'Owner', PROMOTER: 'Promoter / Builder',
+}
+export const APPROVAL_AUTHORITY_LABELS: Record<ApprovalAuthority, string> = {
+  DTCP: 'DTCP approved', CMDA: 'CMDA approved', TNHB: 'TNHB', CMA: 'CMA',
+  RERA: 'RERA registered', LOCAL: 'Local body approved', OTHER: 'Other', NONE: 'Unapproved',
+}
+export const OWNERSHIP_TYPE_LABELS: Record<OwnershipType, string> = {
+  SINGLE: 'Single owner', JOINT: 'Joint ownership', GIFT: 'Gift deed',
+  INHERITED: 'Inherited', COMPANY: 'Company-owned', TRUST: 'Trust-owned',
+}
+export const SOIL_TYPE_LABELS: Record<SoilType, string> = {
+  RED: 'Red soil', BLACK: 'Black soil', ALLUVIAL: 'Alluvial', LATERITE: 'Laterite',
+  SANDY: 'Sandy', CLAY: 'Clay', LOAM: 'Loam', OTHER: 'Other',
+}
+export const WATER_SOURCE_LABELS: Record<WaterSource, string> = {
+  BOREWELL: 'Borewell', OPEN_WELL: 'Open well', CANAL: 'Canal',
+  RIVER: 'River', RAIN_FED: 'Rain-fed', NONE: 'None',
+}
+export const ELECTRIC_SERVICE_LABELS: Record<ElectricService, string> = {
+  AVAILABLE_3PHASE: '3-phase connection', AVAILABLE_1PHASE: '1-phase connection',
+  AGRI_CONNECTION: 'Agricultural connection', NONE: 'No connection',
+}
+
+/** Renders a nullable boolean as Yes / No / — for spec rows. */
+export function yesNo(v: boolean | null | undefined): string {
+  return v == null ? '—' : v ? 'Yes' : 'No'
 }
 
 export function bedroomLabel(bedrooms: number | null): string {

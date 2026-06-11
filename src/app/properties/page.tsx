@@ -5,6 +5,7 @@ import { X, SlidersHorizontal } from 'lucide-react'
 import { propertyApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import SearchBar from '@/components/search/SearchBar'
+import { buttonClasses } from '@/components/ui/Button'
 import type { PropertyCard as PropertyCardType, ListingType, PropertyType, FurnishingStatus, Page } from '@/types'
 
 const PROPERTY_TYPES: { label: string; value: PropertyType }[] = [
@@ -12,7 +13,10 @@ const PROPERTY_TYPES: { label: string; value: PropertyType }[] = [
   { label: 'Independent house', value: 'INDEPENDENT_HOUSE' },
   { label: 'Villa',             value: 'VILLA'             },
   { label: 'Plot',              value: 'PLOT'              },
+  { label: 'Agricultural land', value: 'AGRICULTURAL_LAND' },
   { label: 'Builder floor',     value: 'BUILDER_FLOOR'     },
+  { label: 'Commercial office', value: 'COMMERCIAL_OFFICE' },
+  { label: 'Commercial shop',   value: 'COMMERCIAL_SHOP'   },
 ]
 
 // ── Filter panel extracted to a stable component outside the page ──────────
@@ -43,24 +47,24 @@ function FilterPanel({
     <div className="space-y-5">
       {/* Listing type */}
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">Listing type</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Listing type</p>
         {(['SALE','RENT','PG'] as ListingType[]).map(t => (
           <label key={t} className="flex items-center gap-2 py-1.5 cursor-pointer">
             <input type="radio" name="lt" checked={listingType === t}
               onChange={() => onListingType(t)} className="accent-brand-600" />
-            <span className="text-sm text-gray-600">{t === 'SALE' ? 'Buy' : t === 'RENT' ? 'Rent' : 'PG / Co-living'}</span>
+            <span className="text-sm text-slate-600">{t === 'SALE' ? 'Buy' : t === 'RENT' ? 'Rent' : 'PG / Co-living'}</span>
           </label>
         ))}
       </div>
 
       {/* BHK */}
-      <div className="border-t border-gray-100 pt-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">BHK type</p>
+      <div className="border-t border-slate-100 pt-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">BHK type</p>
         <div className="flex flex-wrap gap-2">
           {[1,2,3,4].map(b => (
             <button key={b} onClick={() => onBhk(b)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors
-                ${selectedBhk.includes(b) ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-600 border-gray-200 hover:border-brand-300'}`}>
+                ${selectedBhk.includes(b) ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300'}`}>
               {b === 4 ? '4+ BHK' : `${b} BHK`}
             </button>
           ))}
@@ -68,36 +72,36 @@ function FilterPanel({
       </div>
 
       {/* Budget */}
-      <div className="border-t border-gray-100 pt-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">Budget</p>
+      <div className="border-t border-slate-100 pt-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Budget</p>
         <div className="space-y-2">
           <input type="number" min="0" value={minPrice} onChange={e => onMinPrice(e.target.value)} placeholder="Min ₹"
-            className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-400" />
+            className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-brand-400" />
           <input type="number" min="0" value={maxPrice} onChange={e => onMaxPrice(e.target.value)} placeholder="Max ₹"
-            className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-400" />
+            className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-brand-400" />
         </div>
       </div>
 
       {/* Property type */}
-      <div className="border-t border-gray-100 pt-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">Property type</p>
+      <div className="border-t border-slate-100 pt-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Property type</p>
         {PROPERTY_TYPES.map(pt => (
           <label key={pt.value} className="flex items-center gap-2 py-1.5 cursor-pointer">
             <input type="radio" name="propType" checked={selectedType === pt.value}
               onChange={() => onPropertyType(selectedType === pt.value ? '' : pt.value)}
               className="accent-brand-600" />
-            <span className="text-sm text-gray-600">{pt.label}</span>
+            <span className="text-sm text-slate-600">{pt.label}</span>
           </label>
         ))}
       </div>
 
       {/* Furnishing */}
-      <div className="border-t border-gray-100 pt-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400 mb-2">Furnishing</p>
+      <div className="border-t border-slate-100 pt-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Furnishing</p>
         {(['UNFURNISHED','SEMI_FURNISHED','FULLY_FURNISHED'] as FurnishingStatus[]).map(f => (
           <label key={f} className="flex items-center gap-2 py-1.5 cursor-pointer">
             <input type="radio" name="furn" checked={furnishing === f} onChange={() => onFurnishing(f)} className="accent-brand-600" />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-slate-600">
               {f === 'UNFURNISHED' ? 'Unfurnished' : f === 'SEMI_FURNISHED' ? 'Semi-furnished' : 'Fully furnished'}
             </span>
           </label>
@@ -105,12 +109,10 @@ function FilterPanel({
       </div>
 
       <div className="flex gap-2 pt-2">
-        <button onClick={onApply}
-          className="flex-1 bg-brand-600 text-white text-sm py-2 rounded-lg hover:bg-brand-800 transition-colors">
+        <button onClick={onApply} className={buttonClasses('primary', 'md', 'flex-1')}>
           Apply filters
         </button>
-        <button onClick={onClear}
-          className="px-4 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50">
+        <button onClick={onClear} className={buttonClasses('secondary', 'md')}>
           Clear
         </button>
       </div>
@@ -200,15 +202,15 @@ function PropertiesContent() {
   const LISTING_NOUN: Record<ListingType, string> = { SALE: 'sale', RENT: 'rental', PG: 'PG' }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Top search bar — sticky below the main navbar (h-16 = 4rem) */}
-      <div className="bg-white border-b border-gray-100 sticky top-16 z-40 overflow-x-hidden">
+      <div className="bg-white border-b border-slate-100 sticky top-16 z-40 overflow-x-hidden">
         {/* Listing type tabs — mobile only */}
-        <div className="md:hidden flex border-b border-gray-100">
+        <div className="md:hidden flex border-b border-slate-100">
           {(['SALE', 'RENT', 'PG'] as ListingType[]).map(t => (
             <button key={t} onClick={() => handleListingType(t)}
               className={`flex-1 py-2.5 text-xs font-semibold transition-colors
-                ${listingType === t ? 'text-brand-600 border-b-2 border-brand-600' : 'text-gray-400'}`}>
+                ${listingType === t ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-400'}`}>
               {LISTING_TYPE_LABEL[t]}
             </button>
           ))}
@@ -218,7 +220,7 @@ function PropertiesContent() {
           {/* Mobile filter button */}
           <button
             onClick={() => setFilterDrawerOpen(true)}
-            className="md:hidden flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 bg-white shrink-0 hover:border-brand-400 transition-colors">
+            className="md:hidden flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 bg-white shrink-0 hover:border-brand-400 transition-colors">
             <SlidersHorizontal size={15} />
             Filters
           </button>
@@ -230,9 +232,9 @@ function PropertiesContent() {
         <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/40" onClick={() => setFilterDrawerOpen(false)} />
           <div className="relative bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-              <span className="font-semibold text-gray-800">Filters</span>
-              <button onClick={() => setFilterDrawerOpen(false)} className="text-gray-400 hover:text-gray-600">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
+              <span className="font-semibold text-slate-800">Filters</span>
+              <button onClick={() => setFilterDrawerOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={20} />
               </button>
             </div>
@@ -262,13 +264,13 @@ function PropertiesContent() {
         {/* Result count + chips + sort */}
         <div className="px-4 pt-3 pb-2 space-y-2">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-slate-500">
               {results
                 ? `${results.totalElements.toLocaleString()} ${LISTING_NOUN[listingType]} ${results.totalElements === 1 ? 'property' : 'properties'}`
                 : 'Searching...'}
             </span>
             <select value={sort} onChange={e => { setSort(e.target.value); setPage(0) }}
-              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white outline-none shrink-0">
+              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white outline-none shrink-0 text-slate-600">
               <option value="createdAt,desc">Newest first</option>
               <option value="price,asc">Price ↑</option>
               <option value="price,desc">Price ↓</option>
@@ -288,7 +290,7 @@ function PropertiesContent() {
 
         <div className="flex">
           {/* Sidebar */}
-          <aside className="hidden md:block w-56 shrink-0 bg-white border-r border-gray-100 p-4 min-h-screen">
+          <aside className="hidden md:block w-56 shrink-0 bg-white border-r border-slate-100 p-4 min-h-screen">
             <FilterPanel
               listingType={listingType}
               selectedBhk={selectedBhk}
@@ -312,13 +314,13 @@ function PropertiesContent() {
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-gray-100 h-64 animate-pulse" />
+                  <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-soft h-64 animate-pulse" />
                 ))}
               </div>
             ) : results?.content.length === 0 ? (
               <div className="text-center py-24">
-                <p className="text-gray-400 text-lg mb-2">No {LISTING_NOUN[listingType]} properties found</p>
-                <p className="text-gray-400 text-sm">Try adjusting your filters or switching to Buy / Rent / PG</p>
+                <p className="text-slate-500 text-lg mb-2">No {LISTING_NOUN[listingType]} properties found</p>
+                <p className="text-slate-400 text-sm">Try adjusting your filters or switching to Buy / Rent / PG</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -330,7 +332,7 @@ function PropertiesContent() {
             {results && results.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8">
                 <button disabled={results.first} onClick={() => setPage(p => p - 1)}
-                  className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-600 disabled:opacity-40 hover:bg-gray-50">
+                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 disabled:opacity-40 hover:bg-slate-50">
                   ← Prev
                 </button>
                 {(() => {
@@ -340,13 +342,13 @@ function PropertiesContent() {
                   const end   = Math.min(results.totalPages, start + windowSize)
                   return Array.from({ length: end - start }, (_, i) => start + i).map(i => (
                     <button key={i} onClick={() => setPage(i)}
-                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${page === i ? 'bg-brand-600 text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${page === i ? 'bg-brand-600 text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
                       {i + 1}
                     </button>
                   ))
                 })()}
                 <button disabled={results.last} onClick={() => setPage(p => p + 1)}
-                  className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-600 disabled:opacity-40 hover:bg-gray-50">
+                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 disabled:opacity-40 hover:bg-slate-50">
                   Next →
                 </button>
               </div>
@@ -362,8 +364,8 @@ function PropertiesContent() {
 export default function PropertiesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Loading properties...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-400 text-sm">Loading properties...</div>
       </div>
     }>
       <PropertiesContent />

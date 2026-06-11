@@ -9,6 +9,8 @@ import toast from 'react-hot-toast'
 import { authApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import { Eye, EyeOff } from 'lucide-react'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const phoneRegex = /^[6-9]\d{9}$/
@@ -21,6 +23,8 @@ const schema = z.object({
   password: z.string().min(1, 'Password is required'),
 })
 type FormData = z.infer<typeof schema>
+
+const inputCls = 'w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50 transition-colors'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -47,59 +51,48 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center">
-            <span className="text-2xl font-semibold text-brand-600">Prop</span>
-            <span className="text-2xl font-semibold text-accent-400">Find</span>
-          </Link>
-          <p className="text-gray-500 text-sm mt-2">Sign in to your account</p>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
-            {/* Email or phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email or mobile number</label>
-              <input {...register('identifier')} type="text" placeholder="you@example.com or 9876543210"
-                autoComplete="username"
-                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50 transition-colors" />
-              {errors.identifier && <p className="text-xs text-red-500 mt-1">{errors.identifier.message}</p>}
-            </div>
-
-            {/* Password */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <Link href="/auth/forgot-password" className="text-xs text-brand-600 hover:underline">Forgot password?</Link>
-              </div>
-              <div className="relative">
-                <input {...register('password')} type={showPassword ? 'text' : 'password'} placeholder="••••••••"
-                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50 pr-10 transition-colors" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
-            </div>
-
-            <button type="submit" disabled={loading}
-              className="w-full bg-brand-600 hover:bg-brand-800 text-white py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
-
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Don&apos;t have an account?{' '}
-            <Link href="/auth/register" className="text-brand-600 font-medium hover:underline">Create one</Link>
-          </p>
-        </div>
+    <Card className="p-8">
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-slate-900">Welcome back</h1>
+        <p className="text-sm text-slate-500 mt-1">Sign in to your account</p>
       </div>
-    </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
+        {/* Email or phone */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Email or mobile number</label>
+          <input {...register('identifier')} type="text" placeholder="you@example.com or 9876543210"
+            autoComplete="username" className={inputCls} />
+          {errors.identifier && <p className="text-xs text-red-500 mt-1">{errors.identifier.message}</p>}
+        </div>
+
+        {/* Password */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm font-medium text-slate-700">Password</label>
+            <Link href="/auth/forgot-password" className="text-xs text-brand-600 hover:underline">Forgot password?</Link>
+          </div>
+          <div className="relative">
+            <input {...register('password')} type={showPassword ? 'text' : 'password'} placeholder="••••••••"
+              className={`${inputCls} pr-10`} />
+            <button type="button" onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+        </div>
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? 'Signing in...' : 'Sign in'}
+        </Button>
+      </form>
+
+      <p className="text-center text-sm text-slate-500 mt-6">
+        Don&apos;t have an account?{' '}
+        <Link href="/auth/register" className="text-brand-600 font-medium hover:underline">Create one</Link>
+      </p>
+    </Card>
   )
 }

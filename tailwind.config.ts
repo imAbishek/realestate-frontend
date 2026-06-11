@@ -26,6 +26,15 @@ const config: Config = {
           800: '#712b13',
         },
       },
+      boxShadow: {
+        // Soft elevation matching the mobile cards (slate-900 @ low opacity)
+        soft: '0 6px 16px rgba(15,23,42,0.06)',
+        card: '0 10px 30px rgba(15,23,42,0.08)',
+      },
+      backgroundImage: {
+        // Hero gradient — lighter brand at top deepening toward brand-900 (mirrors mobile HERO_GRADIENT)
+        'hero-gradient': 'linear-gradient(180deg, #185fa5 0%, #15589c 45%, #0e447a 100%)',
+      },
     },
   },
   plugins: [],
