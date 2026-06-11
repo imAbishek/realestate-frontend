@@ -55,8 +55,13 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="bg-hero-gradient rounded-b-3xl px-4 pt-16 pb-28 text-center">
         <div className="max-w-3xl mx-auto">
+          {/* Brand stays location-neutral; the launch city is a status line, not the identity */}
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-100 bg-white/10 border border-white/20 rounded-full px-3 py-1 mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-400" />
+            Now live in {primaryCity?.name ?? 'Coimbatore'} — more cities soon
+          </span>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
-            Find your home in {primaryCity?.name ?? 'Coimbatore'}
+            Find your next home
           </h1>
           <div className="w-12 h-[3px] rounded bg-accent-400 mx-auto mb-4" />
           <p className="text-brand-100 text-lg mb-8">Verified listings, direct from owners — no brokerage.</p>
@@ -122,7 +127,7 @@ export default async function HomePage() {
         <div className="bg-hero-gradient rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <h2 className="text-2xl font-semibold text-white mb-2">Own a property? List it for free</h2>
-            <p className="text-brand-100 text-sm">Reach buyers and renters across {primaryCity?.name ?? 'Coimbatore'}. Get inquiries directly — no brokerage.</p>
+            <p className="text-brand-100 text-sm">Reach buyers and renters in your city. Get inquiries directly — no brokerage.</p>
           </div>
           <Link href="/post-property" className={buttonClasses('secondary', 'lg', 'text-brand-700')}>
             Post your property →

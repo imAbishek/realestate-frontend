@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
         <div>
           <div className="text-white font-semibold text-lg mb-3">Prop<span className="text-accent-400">Find</span></div>
-          <p className="text-sm leading-relaxed">Coimbatore&apos;s trusted platform to buy, rent, and list verified properties — owners and buyers, no middlemen.</p>
+          <p className="text-sm leading-relaxed">A trusted platform to buy, rent, and list verified properties — owners and buyers, no middlemen. Now in Coimbatore, expanding city by city.</p>
         </div>
         <div>
           <p className="text-white text-sm font-medium mb-3">Browse</p>
