@@ -38,7 +38,7 @@ export function listingTypeBadgeClass(type: ListingType): string {
 
 // ── Phase B enum label maps ────────────────────────────────
 export const LISTED_BY_LABELS: Record<ListedBy, string> = {
-  OWNER: 'Owner', PROMOTER: 'Promoter / Builder',
+  OWNER: 'Owner', PROMOTER: 'Promoter / Builder', AGENT: 'Agent',
 }
 export const APPROVAL_AUTHORITY_LABELS: Record<ApprovalAuthority, string> = {
   DTCP: 'DTCP approved', CMDA: 'CMDA approved', TNHB: 'TNHB', CMA: 'CMA',

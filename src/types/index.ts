@@ -8,7 +8,7 @@ export type PriceUnit       = 'TOTAL' | 'PER_MONTH' | 'PER_SQFT'
 export type UserRole        = 'BUYER' | 'SELLER' | 'AGENT' | 'ADMIN'
 
 // ── Phase B enums (mirror Property entity) ─────────────────
-export type ListedBy          = 'OWNER' | 'PROMOTER'
+export type ListedBy          = 'OWNER' | 'PROMOTER' | 'AGENT'
 export type ApprovalAuthority = 'DTCP' | 'CMDA' | 'TNHB' | 'CMA' | 'RERA' | 'LOCAL' | 'OTHER' | 'NONE'
 export type OwnershipType     = 'SINGLE' | 'JOINT' | 'GIFT' | 'INHERITED' | 'COMPANY' | 'TRUST'
 export type SoilType          = 'RED' | 'BLACK' | 'ALLUVIAL' | 'LATERITE' | 'SANDY' | 'CLAY' | 'LOAM' | 'OTHER'
@@ -100,6 +100,15 @@ export interface InquiryRequest { message: string; guestName?: string; guestEmai
 // ── Site visit bookings (mirrors BookingDtos) ──────────────
 export type BookingStatus = 'REQUESTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
 export type CancelledBy   = 'BUYER' | 'OWNER' | 'ADMIN'
+
+export interface BookSiteVisitRequest {
+  contactName: string
+  contactPhone?: string
+  contactEmail?: string
+  preferredDate?: string
+  preferredWindow?: string
+  notes?: string
+}
 
 export interface SiteVisitBooking {
   id: string

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/store/authStore'
-import type { AuthResponse, LoginRequest, RegisterRequest, PropertyCard, PropertyDetail, SearchParams, Page, City, Locality, InquiryRequest, DocumentDownload, SiteVisitBooking } from '@/types'
+import type { AuthResponse, LoginRequest, RegisterRequest, PropertyCard, PropertyDetail, SearchParams, Page, City, Locality, InquiryRequest, DocumentDownload, SiteVisitBooking, BookSiteVisitRequest } from '@/types'
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
@@ -83,6 +83,7 @@ export const searchApi = {
 
 // ── Site visit bookings ─────────────────────────────────────
 export const bookingsApi = {
+  book:         (propertyId: string, data: BookSiteVisitRequest) => api.post<SiteVisitBooking>(`/properties/${propertyId}/site-visits`, data),
   listMine:     (page = 0, size = 20) => api.get<Page<SiteVisitBooking>>('/site-visits', { params: { page, size } }),
   listIncoming: (page = 0, size = 20) => api.get<Page<SiteVisitBooking>>('/site-visits/incoming', { params: { page, size } }),
   cancel:       (id: string, reason?: string) => api.patch<SiteVisitBooking>(`/site-visits/${id}/cancel`, { reason }),

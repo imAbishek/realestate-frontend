@@ -7,7 +7,7 @@ import { z } from 'zod'
 import toast from 'react-hot-toast'
 import { propertyApi, searchApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
-import type { City, Locality } from '@/types'
+import type { City, Locality, ListingType, PropertyType } from '@/types'
 import { Upload, X } from 'lucide-react'
 
 // Presentational label/error wrapper — declared at module scope so it keeps a stable
@@ -25,8 +25,9 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 const schema = z.object({
   title:            z.string().min(1, 'Title is required'),
   description:      z.string().optional(),
+  listedBy:         z.enum(['OWNER','PROMOTER','AGENT'], { required_error: 'Tell us who is listing' }),
   listingType:      z.enum(['SALE','RENT','PG']),
-  propertyType:     z.enum(['APARTMENT','INDEPENDENT_HOUSE','VILLA','PLOT','COMMERCIAL_OFFICE','COMMERCIAL_SHOP','BUILDER_FLOOR','PG_HOSTEL','AGRICULTURAL_LAND']),
+  propertyType:     z.enum(['APARTMENT','INDEPENDENT_HOUSE','VILLA','PLOT','COMMERCIAL_OFFICE','COMMERCIAL_SHOP','BUILDER_FLOOR','PG_HOSTEL','AGRICULTURAL_LAND'], { required_error: 'Choose a property type', invalid_type_error: 'Choose a property type' }),
   localityId:       z.string().uuid('Please select a locality'),
   price:            z.number({ invalid_type_error: 'Enter a valid price' }).positive('Price must be greater than 0'),
   priceUnit:        z.enum(['TOTAL','PER_MONTH','PER_SQFT']).optional(),
@@ -42,6 +43,42 @@ type FormData = z.infer<typeof schema>
 
 const STEPS = ['Basic info', 'Location', 'Details', 'Photos']
 
+// ── Step-0 cascade (mirrors the mobile post wizard) ─────────────────────────
+type Category = 'RESIDENTIAL' | 'COMMERCIAL' | 'PLOT' | 'AGRI'
+
+const ROLES: { value: 'OWNER' | 'PROMOTER' | 'AGENT'; label: string; sub: string }[] = [
+  { value: 'OWNER',    label: 'Owner',    sub: 'Posting my own property' },
+  { value: 'PROMOTER', label: 'Promoter', sub: 'Builder / developer' },
+  { value: 'AGENT',    label: 'Agent',    sub: 'Listing for an owner' },
+]
+
+const CATEGORIES: { value: Category; label: string; allowed: (l: ListingType) => boolean }[] = [
+  { value: 'RESIDENTIAL', label: 'Residential',       allowed: () => true },
+  { value: 'COMMERCIAL',  label: 'Commercial',        allowed: l => l !== 'PG' },
+  { value: 'PLOT',        label: 'Plot / Land',       allowed: l => l === 'SALE' },
+  { value: 'AGRI',        label: 'Agricultural Land', allowed: l => l === 'SALE' },
+]
+
+// Property sub-types revealed once a category is picked. Single-option categories
+// (plot/agri/PG) resolve to exactly one type, which we auto-select.
+function propertyTypesFor(category: Category, listingType: ListingType): { value: PropertyType; label: string }[] {
+  if (category === 'RESIDENTIAL') {
+    if (listingType === 'PG') return [{ value: 'PG_HOSTEL', label: 'PG / Hostel' }]
+    return [
+      { value: 'APARTMENT',         label: 'Apartment' },
+      { value: 'INDEPENDENT_HOUSE', label: 'Independent house' },
+      { value: 'VILLA',             label: 'Villa' },
+      { value: 'BUILDER_FLOOR',     label: 'Builder floor' },
+    ]
+  }
+  if (category === 'COMMERCIAL') return [
+    { value: 'COMMERCIAL_OFFICE', label: 'Office' },
+    { value: 'COMMERCIAL_SHOP',   label: 'Shop / Showroom' },
+  ]
+  if (category === 'PLOT') return [{ value: 'PLOT', label: 'Plot / Land' }]
+  return [{ value: 'AGRICULTURAL_LAND', label: 'Agricultural land' }]
+}
+
 export default function PostPropertyPage() {
   const router  = useRouter()
   const { isLoggedIn, _hasHydrated } = useAuthStore()
@@ -51,6 +88,7 @@ export default function PostPropertyPage() {
   const [cityId,     setCityId]     = useState('')
   const [images,        setImages]        = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [category,      setCategory]      = useState<Category | null>(null)
 
   // Builds object URLs for the selected files and revokes them on cleanup — this is an
   // imperative browser-resource side effect, so it must live in an effect (not derived state).
@@ -65,9 +103,27 @@ export default function PostPropertyPage() {
 
   const { register, handleSubmit, control, setValue, trigger, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { listingType: 'SALE', propertyType: 'APARTMENT', priceUnit: 'TOTAL', furnishing: 'UNFURNISHED', parkingAvailable: false, priceNegotiable: false },
+    defaultValues: { listingType: 'SALE', priceUnit: 'TOTAL', furnishing: 'UNFURNISHED', parkingAvailable: false, priceNegotiable: false },
   })
-  const listingType = useWatch({ control, name: 'listingType' })
+  const listingType  = useWatch({ control, name: 'listingType' })
+  const listedBy     = useWatch({ control, name: 'listedBy' })
+  const propertyType = useWatch({ control, name: 'propertyType' })
+
+  // Picking a category resolves the sub-type. Single-option categories auto-select
+  // their only type so the user never sees a one-button "choice".
+  function chooseCategory(c: Category) {
+    setCategory(c)
+    const opts = propertyTypesFor(c, listingType)
+    setValue('propertyType', opts.length === 1 ? opts[0].value : (undefined as unknown as PropertyType))
+  }
+
+  // Changing the listing type can invalidate the current category (e.g. PG has no
+  // commercial/plot) — reset the downstream cascade so we never submit a stale pair.
+  function chooseListingType(t: ListingType) {
+    setValue('listingType', t)
+    setCategory(null)
+    setValue('propertyType', undefined as unknown as PropertyType)
+  }
 
   useEffect(() => { if (_hasHydrated && !isLoggedIn) router.push('/auth/login') }, [_hasHydrated, isLoggedIn, router])
   useEffect(() => { searchApi.cities().then(r => setCities(r.data)) }, [])
@@ -137,33 +193,60 @@ export default function PostPropertyPage() {
       >
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
 
-          {/* STEP 0: Basic info */}
+          {/* STEP 0: Basic info — role → listing type → category → sub-type cascade */}
           {step === 0 && (
             <>
-              <Field label="Listing type" error={errors.listingType?.message}>
-                <div className="flex gap-2">
-                  {(['SALE','RENT','PG'] as const).map(t => (
-                    <button key={t} type="button" onClick={() => setValue('listingType', t)}
-                      className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors
-                        ${listingType === t ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
-                      {t === 'SALE' ? 'Sale' : t === 'RENT' ? 'Rent' : 'PG'}
+              <Field label="You are" error={errors.listedBy?.message}>
+                <div className="grid grid-cols-3 gap-2">
+                  {ROLES.map(r => (
+                    <button key={r.value} type="button" onClick={() => setValue('listedBy', r.value)}
+                      className={`flex flex-col items-center text-center px-2 py-3 rounded-xl border transition-colors
+                        ${listedBy === r.value ? 'bg-brand-50 border-brand-600' : 'border-slate-200 hover:border-brand-300'}`}>
+                      <span className={`text-sm font-semibold ${listedBy === r.value ? 'text-brand-700' : 'text-slate-700'}`}>{r.label}</span>
+                      <span className="text-xs text-slate-400 mt-0.5">{r.sub}</span>
                     </button>
                   ))}
                 </div>
               </Field>
 
-              <Field label="Property type" error={errors.propertyType?.message}>
-                <select {...register('propertyType')} className={selectCls}>
-                  <option value="APARTMENT">Apartment</option>
-                  <option value="INDEPENDENT_HOUSE">Independent house</option>
-                  <option value="VILLA">Villa</option>
-                  <option value="PLOT">Plot</option>
-                  <option value="BUILDER_FLOOR">Builder floor</option>
-                  <option value="COMMERCIAL_OFFICE">Commercial office</option>
-                  <option value="COMMERCIAL_SHOP">Commercial shop</option>
-                  <option value="PG_HOSTEL">PG / Hostel</option>
-                </select>
+              <Field label="You are looking to" error={errors.listingType?.message}>
+                <div className="flex gap-2">
+                  {(['SALE','RENT','PG'] as const).map(t => (
+                    <button key={t} type="button" onClick={() => chooseListingType(t)}
+                      className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors
+                        ${listingType === t ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
+                      {t === 'SALE' ? 'Sell' : t === 'RENT' ? 'Rent' : 'PG'}
+                    </button>
+                  ))}
+                </div>
               </Field>
+
+              <Field label="What kind of property?">
+                <div className="grid grid-cols-2 gap-2">
+                  {CATEGORIES.filter(c => c.allowed(listingType)).map(c => (
+                    <button key={c.value} type="button" onClick={() => chooseCategory(c.value)}
+                      className={`py-2.5 rounded-xl border text-sm font-medium transition-colors
+                        ${category === c.value ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
+              {/* Sub-type only appears once a category is chosen */}
+              {category && (
+                <Field label="Select property type" error={errors.propertyType?.message}>
+                  <div className="grid grid-cols-2 gap-2">
+                    {propertyTypesFor(category, listingType).map(pt => (
+                      <button key={pt.value} type="button" onClick={() => setValue('propertyType', pt.value)}
+                        className={`py-2.5 rounded-xl border text-sm font-medium transition-colors
+                          ${propertyType === pt.value ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
+                        {pt.label}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+              )}
 
               <Field label="Property title" error={errors.title?.message}>
                 <input {...register('title')} placeholder="e.g. 3 BHK apartment in RS Puram with parking" className={inputCls} />
@@ -294,8 +377,9 @@ export default function PostPropertyPage() {
           )}
           {step < STEPS.length - 1 ? (
             <button type="button" onClick={async () => {
+              if (step === 0 && !category) { toast.error('Pick what kind of property this is'); return }
               const stepFields: Record<number, (keyof FormData)[]> = {
-                0: ['title', 'listingType', 'propertyType'],
+                0: ['listedBy', 'title', 'listingType', 'propertyType'],
                 1: ['localityId'],
                 2: ['price', 'areaSqft'],
               }

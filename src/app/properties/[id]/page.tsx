@@ -1,15 +1,15 @@
 import { notFound } from 'next/navigation'
 import {
   MapPin, Bed, Bath, Maximize2, Car, Layers, BadgeCheck, Eye, MessageCircle,
-  Phone, Ruler, Droplets, Compass, ShieldCheck,
+  Ruler, Droplets, Compass, ShieldCheck,
 } from 'lucide-react'
 import { propertyApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import InquiryForm from '@/components/property/InquiryForm'
+import ContactActions from '@/components/property/ContactActions'
 import ImagePlaceholder from '@/components/property/ImagePlaceholder'
 import Card from '@/components/ui/Card'
 import Badge, { type BadgeTone } from '@/components/ui/Badge'
-import { buttonClasses } from '@/components/ui/Button'
 import {
   formatPrice, LISTING_TYPE_LABELS, PROPERTY_TYPE_LABELS, FURNISHING_LABELS, yesNo,
   LISTED_BY_LABELS, APPROVAL_AUTHORITY_LABELS, OWNERSHIP_TYPE_LABELS,
@@ -249,11 +249,11 @@ export default async function PropertyDetailPage({ params }: Props) {
                 <p className="text-xs text-slate-400 capitalize">{property.owner.role === 'AGENT' ? 'Verified agent' : 'Owner'}</p>
               </div>
             </div>
-            {property.owner.phone && (
-              <a href={`tel:${property.owner.phone}`} className={buttonClasses('primary', 'md', 'w-full')}>
-                <Phone size={15} /> View contact
-              </a>
-            )}
+            <ContactActions
+              ownerPhone={property.owner.phone}
+              propertyId={property.id}
+              propertyTitle={property.title}
+            />
           </Card>
 
           {/* Inquiry */}
