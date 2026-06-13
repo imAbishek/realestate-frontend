@@ -7,7 +7,7 @@ import { propertyApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import InquiryForm from '@/components/property/InquiryForm'
 import ContactActions from '@/components/property/ContactActions'
-import ImagePlaceholder from '@/components/property/ImagePlaceholder'
+import PropertyGallery from '@/components/property/PropertyGallery'
 import Card from '@/components/ui/Card'
 import Badge, { type BadgeTone } from '@/components/ui/Badge'
 import {
@@ -115,7 +115,6 @@ export default async function PropertyDetailPage({ params }: Props) {
     similar = (await propertyApi.getSimilar(id)).data
   } catch { similar = [] }
 
-  const primaryImage = property.images.find(i => i.isPrimary) ?? property.images[0]
   const specs = buildSpecs(property)
   const highlights = buildHighlights(property)
   const isPromoter = property.listedBy === 'PROMOTER'
@@ -128,31 +127,13 @@ export default async function PropertyDetailPage({ params }: Props) {
         <div className="lg:col-span-2 space-y-6">
 
           {/* Gallery */}
-          <div>
-            <div className="relative h-80 md:h-96 bg-slate-100 rounded-2xl overflow-hidden">
-              {primaryImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={primaryImage.url} alt={property.title} className="w-full h-full object-cover" />
-              ) : (
-                <ImagePlaceholder />
-              )}
-              <div className="absolute top-4 left-4 flex gap-2">
-                <Badge tone={LISTING_TONE[property.listingType]}>{LISTING_TYPE_LABELS[property.listingType]}</Badge>
-                {property.isFeatured && <Badge tone="amber">Featured</Badge>}
-                {isPromoter && <Badge tone="brand">{LISTED_BY_LABELS.PROMOTER}</Badge>}
-              </div>
+          <PropertyGallery images={property.images} title={property.title}>
+            <div className="absolute top-4 left-4 flex gap-2 z-10">
+              <Badge tone={LISTING_TONE[property.listingType]}>{LISTING_TYPE_LABELS[property.listingType]}</Badge>
+              {property.isFeatured && <Badge tone="amber">Featured</Badge>}
+              {isPromoter && <Badge tone="brand">{LISTED_BY_LABELS.PROMOTER}</Badge>}
             </div>
-            {property.images.length > 1 && (
-              <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
-                {property.images.map(img => (
-                  <div key={img.id} className="w-20 h-16 rounded-lg overflow-hidden shrink-0 bg-slate-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          </PropertyGallery>
 
           {/* Title & price */}
           <div>
