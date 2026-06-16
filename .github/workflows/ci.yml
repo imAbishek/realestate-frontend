@@ -1,0 +1,26 @@
+name: Frontend CI
+
+# Type-check + lint gate on every push/PR. Plus a non-blocking dependency
+# audit (SCA) for visibility — Dependabot raises the actual fix PRs.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Dependency audit (report-only)
+        run: npm audit --audit-level=high || true
