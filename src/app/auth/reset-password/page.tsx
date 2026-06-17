@@ -1,12 +1,12 @@
 'use client'
-import { useState, Suspense } from 'react'
-import Link from 'next/link'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
 import { authApi } from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 import { Eye, EyeOff } from 'lucide-react'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -27,23 +27,62 @@ const inputCls = 'w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl 
 function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { setAuth } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, getValues, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { email: searchParams.get('email') ?? '' },
   })
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [cooldown])
+
+  async function resendOtp() {
+    const email = getValues('email')
+    if (!z.string().email().safeParse(email).success) {
+      toast.error('Enter your email address first.')
+      return
+    }
+    setResending(true)
+    try {
+      await authApi.forgotPassword(email)
+    } catch {
+      // Neutral response either way (anti-enumeration, mirrors the backend).
+    } finally {
+      setResending(false)
+      setCooldown(30)
+      toast.success('A new OTP has been sent. Check your email.')
+    }
+  }
 
   async function onSubmit(data: FormData) {
     setLoading(true)
     try {
       await authApi.resetPassword(data.email, data.otp, data.newPassword)
-      toast.success('Password reset successfully! You can now sign in.')
-      router.push('/auth/login')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       toast.error(msg || 'Invalid or expired OTP. Please try again.')
+      setLoading(false)
+      return
+    }
+    // Password changed — sign the user straight in with the new credentials.
+    try {
+      const res = await authApi.login({ identifier: data.email, password: data.newPassword })
+      const { user, accessToken, refreshToken } = res.data
+      setAuth(user, accessToken, refreshToken)
+      toast.success('Password reset — you are now signed in.')
+      router.push(user.role === 'ADMIN' ? '/admin' : '/dashboard')
+    } catch {
+      // Reset worked but auto-login didn't — fall back to manual sign-in.
+      toast.success('Password reset successfully! Please sign in.')
+      router.push('/auth/login')
     } finally {
       setLoading(false)
     }
@@ -121,9 +160,14 @@ function ResetPasswordForm() {
 
       <p className="text-center text-sm text-slate-500 mt-6">
         Didn&apos;t get the OTP?{' '}
-        <Link href="/auth/forgot-password" className="text-brand-600 font-medium hover:underline">
-          Resend
-        </Link>
+        <button
+          type="button"
+          onClick={resendOtp}
+          disabled={resending || cooldown > 0}
+          className="text-brand-600 font-medium hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed"
+        >
+          {cooldown > 0 ? `Resend in ${cooldown}s` : resending ? 'Resending…' : 'Resend'}
+        </button>
       </p>
     </Card>
   )
