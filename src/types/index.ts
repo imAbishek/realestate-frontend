@@ -3,6 +3,7 @@
 export type ListingType     = 'SALE' | 'RENT' | 'PG'
 export type PropertyType    = 'APARTMENT' | 'INDEPENDENT_HOUSE' | 'VILLA' | 'PLOT' | 'COMMERCIAL_OFFICE' | 'COMMERCIAL_SHOP' | 'BUILDER_FLOOR' | 'PG_HOSTEL' | 'AGRICULTURAL_LAND'
 export type FurnishingStatus = 'UNFURNISHED' | 'SEMI_FURNISHED' | 'FULLY_FURNISHED'
+export type PreferredTenant = 'FAMILY' | 'BACHELOR_MEN' | 'BACHELOR_WOMEN' | 'ANYONE'
 export type ListingStatus   = 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'EXPIRED' | 'REJECTED' | 'SOLD_RENTED'
 export type PriceUnit       = 'TOTAL' | 'PER_MONTH' | 'PER_SQFT'
 export type UserRole        = 'BUYER' | 'SELLER' | 'AGENT' | 'ADMIN'
@@ -62,7 +63,9 @@ export interface PropertyDetail {
   bathrooms: number | null; balconies: number | null; totalFloors: number | null
   floorNumber: number | null; areaSqft: number; carpetAreaSqft: number | null
   furnishing: FurnishingStatus; facing: string | null; ageOfProperty: number | null
-  availableFrom: string | null; parkingAvailable: boolean; addressLine: string | null
+  availableFrom: string | null; parkingAvailable: boolean
+  preferredTenant: PreferredTenant | null
+  addressLine: string | null
   latitude: number | null; longitude: number | null; localityName: string; localitySlug: string
   cityName: string; citySlug: string; isFeatured: boolean; isVerified: boolean
   viewsCount: number; inquiryCount: number; images: PropertyImage[]; amenities: Amenity[]
@@ -82,6 +85,8 @@ export interface PropertyDetail {
 
 export interface SearchParams {
   citySlug?: string; localityId?: string; listingType?: ListingType; propertyType?: PropertyType
+  // Multi-select filters (item 8) — sent as repeated query keys
+  listingTypes?: ListingType[]; propertyTypes?: PropertyType[]; furnishings?: FurnishingStatus[]
   minPrice?: number; maxPrice?: number; minBedrooms?: number; maxBedrooms?: number
   minArea?: number; maxArea?: number; furnishing?: FurnishingStatus
   featuredOnly?: boolean; keyword?: string; page?: number; size?: number; sort?: string

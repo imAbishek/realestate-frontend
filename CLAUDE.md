@@ -65,6 +65,7 @@ src/
 - `LoginRequest` uses `identifier` (not `email`) — accepts email or 10-digit Indian mobile number
 - `RegisterRequest` has no `role` field — backend defaults all new users to BUYER
 - `next.config.js` reads `NEXT_PUBLIC_MINIO_HOST` / `NEXT_PUBLIC_MINIO_PROTOCOL` / `NEXT_PUBLIC_MINIO_PORT` to whitelist the prod image CDN hostname for `next/image`
+- **Google Maps** (`@vis.gl/react-google-maps`) lives in `src/components/map/` — `LocationPicker.tsx` (post/edit forms: Places Autocomplete + draggable pin → sets `latitude`/`longitude`/`addressLine`) and `PropertyLocationMap.tsx` (detail page: read-only). Reads `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`; both render a graceful fallback (no crash) when the key is unset. Multi-select search params (`listingTypes`/`propertyTypes`/`furnishings`) are sent as repeated query keys via `paramsSerializer: { indexes: null }` in `propertyApi.search` — Spring binds them to `List<Enum>`.
 
 ## Auth guard pattern (use in every protected page)
 ```tsx

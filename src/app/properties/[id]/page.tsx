@@ -8,6 +8,7 @@ import PropertyCard from '@/components/property/PropertyCard'
 import InquiryForm from '@/components/property/InquiryForm'
 import ContactActions from '@/components/property/ContactActions'
 import PropertyGallery from '@/components/property/PropertyGallery'
+import PropertyLocationMap from '@/components/map/PropertyLocationMap'
 import Card from '@/components/ui/Card'
 import Badge, { type BadgeTone } from '@/components/ui/Badge'
 import {
@@ -20,6 +21,10 @@ import type { PropertyDetail, PropertyCard as PropertyCardType, ListingType } fr
 interface Props { params: Promise<{ id: string }> }
 
 const LISTING_TONE: Record<ListingType, BadgeTone> = { SALE: 'green', RENT: 'brand', PG: 'purple' }
+
+const TENANT_LABELS: Record<NonNullable<PropertyDetail['preferredTenant']>, string> = {
+  FAMILY: 'Family', BACHELOR_MEN: 'Bachelors (Men)', BACHELOR_WOMEN: 'Bachelors (Women)', ANYONE: 'Anyone',
+}
 
 type Spec = { label: string; value: string }
 
@@ -49,6 +54,9 @@ function buildSpecs(p: PropertyDetail): Spec[] {
     add('Facing', p.facing)
     if (p.ageOfProperty) add('Age', p.ageOfProperty, ' yrs')
     add('Parking', p.parkingAvailable ? 'Available' : 'Not available')
+    if ((p.listingType === 'RENT' || p.listingType === 'PG') && p.preferredTenant) {
+      add('Preferred tenant', TENANT_LABELS[p.preferredTenant])
+    }
   }
 
   if (isCommercial) {
@@ -181,6 +189,17 @@ export default async function PropertyDetailPage({ params }: Props) {
               ))}
             </div>
           </Card>
+
+          {/* Location map — only when the listing has coordinates */}
+          {property.latitude != null && property.longitude != null && (
+            <Card className="p-5">
+              <h2 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                <MapPin size={15} className="text-brand-500" /> Location
+              </h2>
+              <PropertyLocationMap lat={property.latitude} lng={property.longitude} label={property.title} />
+              <p className="text-xs text-slate-400 mt-2">{property.addressLine ?? `${property.localityName}, ${property.cityName}`}</p>
+            </Card>
+          )}
 
           {/* Promoter / builder */}
           {isPromoter && (property.promoterProjectName || property.promoterReraId) && (

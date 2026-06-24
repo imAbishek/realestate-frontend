@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, ShieldCheck, HandCoins, CalendarCheck, Calculator } from 'lucide-react'
+import { MapPin, ShieldCheck, HandCoins, CalendarCheck, Calculator, Star, Search, FileCheck2, KeyRound } from 'lucide-react'
 import { propertyApi, searchApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import SearchBar from '@/components/search/SearchBar'
@@ -53,20 +53,30 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-hero-gradient rounded-b-3xl px-4 pt-16 pb-28 text-center">
-        <div className="max-w-3xl mx-auto">
+      <section className="relative overflow-hidden bg-hero-gradient rounded-b-3xl px-4 pt-16 pb-28 text-center">
+        {/* Decorative blurred brand blobs — pure ornament, brand palette only */}
+        <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-brand-400/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-16 w-80 h-80 rounded-full bg-accent-400/20 blur-3xl" />
+
+        <div className="relative max-w-3xl mx-auto">
           {/* Brand stays location-neutral; the launch city is a status line, not the identity */}
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-100 bg-white/10 border border-white/20 rounded-full px-3 py-1 mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-400" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-100 bg-white/10 border border-white/20 rounded-full px-3 py-1 mb-5 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-400 animate-pulse" />
             Now live in {primaryCity?.name ?? 'Coimbatore'} — more cities soon
           </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
-            Find your next home
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 leading-[1.1] tracking-tight">
+            Find your next home,<br className="hidden sm:block" /> <span className="text-accent-400">without the broker</span>
           </h1>
           <div className="w-12 h-[3px] rounded bg-accent-400 mx-auto mb-4" />
-          <p className="text-brand-100 text-lg mb-8">Verified listings, direct from owners — no brokerage.</p>
+          <p className="text-brand-100 text-lg mb-8">Verified listings, direct from owners — zero brokerage.</p>
         </div>
-        <div className="max-w-2xl mx-auto"><SearchBar /></div>
+        <div className="relative max-w-2xl mx-auto"><SearchBar /></div>
+
+        {/* Social proof */}
+        <div className="relative mt-7 flex items-center justify-center gap-2 text-brand-100 text-xs">
+          <span className="flex">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={13} className="fill-accent-400 text-accent-400" />)}</span>
+          <span>Trusted by {totalListings ? `${totalListings.toLocaleString('en-IN')}+ ` : ''}owners &amp; buyers</span>
+        </div>
       </section>
 
       {/* Floating trust band */}
@@ -77,6 +87,26 @@ export default async function HomePage() {
           <Stat value="₹0" label="Brokerage — ever" />
         </div>
       </div>
+
+      {/* How it works */}
+      <Section title="How PropFind works" subtitle="Three steps from search to keys">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { icon: Search,     step: '01', title: 'Search & filter', desc: 'Pick a city, set your budget and filters, and browse verified listings.' },
+            { icon: FileCheck2, step: '02', title: 'Connect directly', desc: 'Message owners, book a site visit, and ask anything — no middleman.' },
+            { icon: KeyRound,   step: '03', title: 'Move in',         desc: 'Close the deal directly with the owner and save on brokerage.' },
+          ].map(s => (
+            <div key={s.step} className="relative bg-white rounded-2xl border border-slate-100 shadow-soft p-6 hover:border-brand-200 transition-colors">
+              <span className="absolute top-5 right-5 text-3xl font-bold text-slate-100">{s.step}</span>
+              <div className="w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center mb-4">
+                <s.icon className="w-5 h-5 text-brand-600" />
+              </div>
+              <p className="font-semibold text-slate-800">{s.title}</p>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       {/* Browse by locality */}
       {localities.length > 0 && (

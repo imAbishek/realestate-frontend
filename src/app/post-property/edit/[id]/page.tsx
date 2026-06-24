@@ -9,6 +9,14 @@ import { propertyApi, searchApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import type { City, Locality, PropertyDetail, PropertyImage } from '@/types'
 import { Upload, X, AlertCircle } from 'lucide-react'
+import LocationPicker from '@/components/map/LocationPicker'
+
+const TENANT_OPTIONS: { value: 'FAMILY' | 'BACHELOR_MEN' | 'BACHELOR_WOMEN' | 'ANYONE'; label: string }[] = [
+  { value: 'FAMILY',         label: 'Family' },
+  { value: 'BACHELOR_MEN',   label: 'Bachelors (Men)' },
+  { value: 'BACHELOR_WOMEN', label: 'Bachelors (Women)' },
+  { value: 'ANYONE',         label: 'Anyone' },
+]
 
 // Presentational label/error wrapper — declared at module scope so it keeps a stable
 // identity across renders (a component defined inside render resets its subtree each pass).
@@ -36,7 +44,10 @@ const schema = z.object({
   areaSqft:         z.number().positive('Area must be greater than 0'),
   furnishing:       z.enum(['UNFURNISHED','SEMI_FURNISHED','FULLY_FURNISHED']).optional(),
   parkingAvailable: z.boolean().optional(),
-  addressLine:      z.string().optional(),
+  preferredTenant:  z.enum(['FAMILY','BACHELOR_MEN','BACHELOR_WOMEN','ANYONE']).optional(),
+  addressLine:      z.string().min(1, 'Full address is required'),
+  latitude:         z.number().optional(),
+  longitude:        z.number().optional(),
 })
 type FormData = z.infer<typeof schema>
 
@@ -79,6 +90,9 @@ export default function EditPropertyPage() {
     defaultValues: { listingType: 'SALE', propertyType: 'APARTMENT', priceUnit: 'TOTAL', furnishing: 'UNFURNISHED', parkingAvailable: false, priceNegotiable: false },
   })
   const listingType = useWatch({ control, name: 'listingType' })
+  const latitude    = useWatch({ control, name: 'latitude' })
+  const longitude   = useWatch({ control, name: 'longitude' })
+  const preferredTenant = useWatch({ control, name: 'preferredTenant' })
 
   useEffect(() => { if (_hasHydrated && !isLoggedIn) router.push('/auth/login') }, [_hasHydrated, isLoggedIn, router])
 
@@ -119,7 +133,10 @@ export default function EditPropertyPage() {
             areaSqft:         p.areaSqft,
             furnishing:       p.furnishing ?? 'UNFURNISHED',
             parkingAvailable: p.parkingAvailable,
+            preferredTenant:  p.preferredTenant ?? undefined,
             addressLine:      p.addressLine ?? '',
+            latitude:         p.latitude ?? undefined,
+            longitude:        p.longitude ?? undefined,
           })
         }
       })
@@ -133,6 +150,12 @@ export default function EditPropertyPage() {
   }, [cityId])
 
   async function onSubmit(data: FormData) {
+    // A listing must keep at least one photo.
+    if (existingImages.length + newImages.length === 0) {
+      toast.error('Add at least one photo of the property')
+      setStep(3)
+      return
+    }
     setLoading(true)
     try {
       await propertyApi.update(id, data)
@@ -290,8 +313,20 @@ export default function EditPropertyPage() {
                 </select>
               </Field>
 
-              <Field label="Full address (optional)">
+              <Field label="Full address" error={errors.addressLine?.message}>
                 <textarea {...register('addressLine')} rows={2} placeholder="Flat no, street name, landmark..." className={inputCls + ' resize-none'} />
+              </Field>
+
+              <Field label="Pin location on map (optional)">
+                <LocationPicker
+                  lat={latitude ?? null}
+                  lng={longitude ?? null}
+                  onChange={(lat, lng, address) => {
+                    setValue('latitude', lat)
+                    setValue('longitude', lng)
+                    if (address) setValue('addressLine', address, { shouldValidate: true })
+                  }}
+                />
               </Field>
             </>
           )}
@@ -320,7 +355,7 @@ export default function EditPropertyPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Bedrooms">
                   <select {...register('bedrooms', { valueAsNumber: true })} className={selectCls}>
-                    {[0,1,2,3,4,5,6].map(n => <option key={n} value={n}>{n === 0 ? 'Studio' : `${n} BHK`}</option>)}
+                    {[0,1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </Field>
                 <Field label="Bathrooms">
@@ -341,6 +376,20 @@ export default function EditPropertyPage() {
                   <option value="FULLY_FURNISHED">Fully furnished</option>
                 </select>
               </Field>
+
+              {(listingType === 'RENT' || listingType === 'PG') && (
+                <Field label="Preferred tenant">
+                  <div className="grid grid-cols-2 gap-2">
+                    {TENANT_OPTIONS.map(t => (
+                      <button key={t.value} type="button" onClick={() => setValue('preferredTenant', t.value)}
+                        className={`py-2.5 rounded-xl border text-sm font-medium transition-colors
+                          ${preferredTenant === t.value ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-200 text-slate-600 hover:border-brand-300'}`}>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+              )}
 
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" {...register('parkingAvailable')} className="accent-brand-600 w-4 h-4 rounded" />
@@ -427,7 +476,7 @@ export default function EditPropertyPage() {
             <button type="button" onClick={async () => {
               const stepFields: Record<number, (keyof FormData)[]> = {
                 0: ['title', 'listingType', 'propertyType'],
-                1: ['localityId'],
+                1: ['localityId', 'addressLine'],
                 2: ['price', 'areaSqft'],
               }
               const valid = await trigger(stepFields[step] ?? [])

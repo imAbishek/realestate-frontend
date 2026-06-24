@@ -19,18 +19,33 @@ const PROPERTY_TYPES: { label: string; value: PropertyType }[] = [
   { label: 'Commercial shop',   value: 'COMMERCIAL_SHOP'   },
 ]
 
+const LISTING_TYPES: { label: string; value: ListingType }[] = [
+  { label: 'Buy',           value: 'SALE' },
+  { label: 'Rent',          value: 'RENT' },
+  { label: 'PG / Co-living', value: 'PG'  },
+]
+
+const FURNISHINGS: { label: string; value: FurnishingStatus }[] = [
+  { label: 'Unfurnished',    value: 'UNFURNISHED'     },
+  { label: 'Semi-furnished', value: 'SEMI_FURNISHED'  },
+  { label: 'Fully furnished', value: 'FULLY_FURNISHED' },
+]
+
+const LISTING_TYPE_LABEL: Record<ListingType, string> = { SALE: 'Buy', RENT: 'Rent', PG: 'PG / Co-living' }
+const LISTING_NOUN: Record<ListingType, string> = { SALE: 'sale', RENT: 'rental', PG: 'PG' }
+
 // ── Filter panel extracted to a stable component outside the page ──────────
 // Defining components inside a parent causes unmount/remount on every render.
 interface FilterPanelProps {
-  listingType: ListingType
+  selectedListingTypes: ListingType[]
   selectedBhk: number[]
-  selectedType: PropertyType | ''
-  furnishing: FurnishingStatus | ''
+  selectedTypes: PropertyType[]
+  selectedFurnishings: FurnishingStatus[]
   minPrice: string
   maxPrice: string
   onListingType: (t: ListingType) => void
   onBhk: (b: number) => void
-  onPropertyType: (t: PropertyType | '') => void
+  onPropertyType: (t: PropertyType) => void
   onFurnishing: (f: FurnishingStatus) => void
   onMinPrice: (v: string) => void
   onMaxPrice: (v: string) => void
@@ -39,20 +54,20 @@ interface FilterPanelProps {
 }
 
 function FilterPanel({
-  listingType, selectedBhk, selectedType, furnishing, minPrice, maxPrice,
+  selectedListingTypes, selectedBhk, selectedTypes, selectedFurnishings, minPrice, maxPrice,
   onListingType, onBhk, onPropertyType, onFurnishing, onMinPrice, onMaxPrice,
   onApply, onClear,
 }: FilterPanelProps) {
   return (
     <div className="space-y-5">
-      {/* Listing type */}
+      {/* Listing type — multi-select */}
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Listing type</p>
-        {(['SALE','RENT','PG'] as ListingType[]).map(t => (
-          <label key={t} className="flex items-center gap-2 py-1.5 cursor-pointer">
-            <input type="radio" name="lt" checked={listingType === t}
-              onChange={() => onListingType(t)} className="accent-brand-600" />
-            <span className="text-sm text-slate-600">{t === 'SALE' ? 'Buy' : t === 'RENT' ? 'Rent' : 'PG / Co-living'}</span>
+        {LISTING_TYPES.map(t => (
+          <label key={t.value} className="flex items-center gap-2 py-1.5 cursor-pointer">
+            <input type="checkbox" checked={selectedListingTypes.includes(t.value)}
+              onChange={() => onListingType(t.value)} className="accent-brand-600 w-4 h-4 rounded" />
+            <span className="text-sm text-slate-600">{t.label}</span>
           </label>
         ))}
       </div>
@@ -82,28 +97,26 @@ function FilterPanel({
         </div>
       </div>
 
-      {/* Property type */}
+      {/* Property type — multi-select */}
       <div className="border-t border-slate-100 pt-4">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Property type</p>
         {PROPERTY_TYPES.map(pt => (
           <label key={pt.value} className="flex items-center gap-2 py-1.5 cursor-pointer">
-            <input type="radio" name="propType" checked={selectedType === pt.value}
-              onChange={() => onPropertyType(selectedType === pt.value ? '' : pt.value)}
-              className="accent-brand-600" />
+            <input type="checkbox" checked={selectedTypes.includes(pt.value)}
+              onChange={() => onPropertyType(pt.value)} className="accent-brand-600 w-4 h-4 rounded" />
             <span className="text-sm text-slate-600">{pt.label}</span>
           </label>
         ))}
       </div>
 
-      {/* Furnishing */}
+      {/* Furnishing — multi-select */}
       <div className="border-t border-slate-100 pt-4">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Furnishing</p>
-        {(['UNFURNISHED','SEMI_FURNISHED','FULLY_FURNISHED'] as FurnishingStatus[]).map(f => (
-          <label key={f} className="flex items-center gap-2 py-1.5 cursor-pointer">
-            <input type="radio" name="furn" checked={furnishing === f} onChange={() => onFurnishing(f)} className="accent-brand-600" />
-            <span className="text-sm text-slate-600">
-              {f === 'UNFURNISHED' ? 'Unfurnished' : f === 'SEMI_FURNISHED' ? 'Semi-furnished' : 'Fully furnished'}
-            </span>
+        {FURNISHINGS.map(f => (
+          <label key={f.value} className="flex items-center gap-2 py-1.5 cursor-pointer">
+            <input type="checkbox" checked={selectedFurnishings.includes(f.value)}
+              onChange={() => onFurnishing(f.value)} className="accent-brand-600 w-4 h-4 rounded" />
+            <span className="text-sm text-slate-600">{f.label}</span>
           </label>
         ))}
       </div>
@@ -124,10 +137,11 @@ function FilterPanel({
 function PropertiesContent() {
   const searchParams = useSearchParams()
 
-  const [listingType,   setListingType]   = useState<ListingType>((searchParams.get('listingType') as ListingType) || 'SALE')
-  const [selectedType,  setSelectedType]  = useState<PropertyType | ''>('')
-  const [selectedBhk,   setSelectedBhk]   = useState<number[]>([])
-  const [furnishing,    setFurnishing]    = useState<FurnishingStatus | ''>('')
+  const initialListing = (searchParams.get('listingType') as ListingType) || 'SALE'
+  const [selectedListingTypes, setSelectedListingTypes] = useState<ListingType[]>([initialListing])
+  const [selectedTypes,       setSelectedTypes]       = useState<PropertyType[]>([])
+  const [selectedBhk,         setSelectedBhk]         = useState<number[]>([])
+  const [selectedFurnishings, setSelectedFurnishings] = useState<FurnishingStatus[]>([])
   const [minPrice,      setMinPrice]      = useState(searchParams.get('minPrice') || '')
   const [maxPrice,      setMaxPrice]      = useState(searchParams.get('maxPrice') || '')
   const [citySlug,      setCitySlug]      = useState(searchParams.get('citySlug') || '')
@@ -139,15 +153,18 @@ function PropertiesContent() {
   const [loading,       setLoading]       = useState(false)
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
 
+  // The result-count noun + the mobile tabs use a single "primary" listing type:
+  // it's the sole selected one, or SALE when none/multiple are selected.
+  const primaryListing: ListingType = selectedListingTypes.length === 1 ? selectedListingTypes[0] : 'SALE'
+
   // Sync filter state when the URL search params change (e.g. Navbar Buy/Rent/PG links
   // while already on this page). Done during render via the "store previous value" pattern
-  // rather than in an effect — React applies it before paint with no extra commit, and it
-  // avoids the cascading re-render that a setState-in-effect would cause.
+  // rather than in an effect — React applies it before paint with no extra commit.
   const paramsKey = searchParams.toString()
   const [prevParamsKey, setPrevParamsKey] = useState(paramsKey)
   if (paramsKey !== prevParamsKey) {
     setPrevParamsKey(paramsKey)
-    setListingType((searchParams.get('listingType') as ListingType) || 'SALE')
+    setSelectedListingTypes([(searchParams.get('listingType') as ListingType) || 'SALE'])
     setCitySlug(searchParams.get('citySlug') || '')
     setKeyword(searchParams.get('keyword') || '')
     setFeaturedOnly(searchParams.get('featuredOnly') === 'true')
@@ -157,19 +174,20 @@ function PropertiesContent() {
   const fetchResults = useCallback(async () => {
     setLoading(true)
     try {
-      const params: Record<string, unknown> = { listingType, sort, page, size: 12 }
+      const params: Record<string, unknown> = { sort, page, size: 12 }
+      if (selectedListingTypes.length) params.listingTypes = selectedListingTypes
+      if (selectedTypes.length)        params.propertyTypes = selectedTypes
+      if (selectedFurnishings.length)  params.furnishings   = selectedFurnishings
       if (citySlug)           params.citySlug    = citySlug
       if (keyword)            params.keyword     = keyword
       if (featuredOnly)       params.featuredOnly = true
       if (minPrice)           params.minPrice    = minPrice
       if (maxPrice)           params.maxPrice    = maxPrice
-      if (furnishing)         params.furnishing  = furnishing
       if (selectedBhk.length) {
         params.minBedrooms = Math.min(...selectedBhk)
         // Only cap with maxBedrooms when "4+ BHK" is NOT selected (4 means "4 or more")
         if (!selectedBhk.includes(4)) params.maxBedrooms = Math.max(...selectedBhk)
       }
-      if (selectedType)       params.propertyType = selectedType
       const { data } = await propertyApi.search(params as never)
       setResults(data)
     } catch {
@@ -177,46 +195,43 @@ function PropertiesContent() {
     } finally {
       setLoading(false)
     }
-  }, [listingType, sort, page, citySlug, keyword, minPrice, maxPrice, furnishing, selectedBhk, selectedType, featuredOnly])
+  }, [sort, page, selectedListingTypes, selectedTypes, selectedFurnishings, citySlug, keyword, minPrice, maxPrice, selectedBhk, featuredOnly])
 
-  // Data-fetch effect: synchronizes results with the current filters by querying the server
-  // (an external system — exactly what effects are for). The synchronous setLoading inside
-  // fetchResults is intentional, so this rule doesn't apply here.
+  // Data-fetch effect: synchronizes results with the current filters by querying the server.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchResults() }, [fetchResults])
 
+  function toggle<T>(arr: T[], v: T): T[] { return arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] }
+
   const activeFilters = [
-    ...(citySlug   ? [{ label: citySlug,   clear: () => { setCitySlug('');    setPage(0) } }] : []),
-    ...(keyword    ? [{ label: keyword,    clear: () => { setKeyword('');     setPage(0) } }] : []),
-    ...(furnishing   ? [{ label: furnishing.replace(/_/g,' '), clear: () => { setFurnishing('');  setPage(0) } }] : []),
-    ...(selectedType ? [{ label: selectedType.replace(/_/g,' ').toLowerCase(), clear: () => { setSelectedType(''); setPage(0) } }] : []),
+    ...(citySlug ? [{ label: citySlug, clear: () => { setCitySlug(''); setPage(0) } }] : []),
+    ...(keyword  ? [{ label: keyword,  clear: () => { setKeyword('');  setPage(0) } }] : []),
+    ...selectedFurnishings.map(f => ({ label: f.replace(/_/g,' ').toLowerCase(), clear: () => { setSelectedFurnishings(p => p.filter(v => v !== f)); setPage(0) } })),
+    ...selectedTypes.map(t => ({ label: t.replace(/_/g,' ').toLowerCase(), clear: () => { setSelectedTypes(p => p.filter(v => v !== t)); setPage(0) } })),
     ...selectedBhk.map(b => ({ label: `${b} BHK`, clear: () => { setSelectedBhk(p => p.filter(v => v !== b)); setPage(0) } })),
   ]
 
-  function handleListingType(t: ListingType) { setListingType(t); setPage(0) }
-  function handleBhk(b: number) { setSelectedBhk(p => p.includes(b) ? p.filter(v => v !== b) : [...p, b]); setPage(0) }
-  // Fix: clear also resets the page so stale pagination is never shown
-  function handleClear() { setSelectedBhk([]); setSelectedType(''); setFurnishing(''); setMinPrice(''); setMaxPrice(''); setPage(0) }
-
-  const LISTING_TYPE_LABEL: Record<ListingType, string> = { SALE: 'Buy', RENT: 'Rent', PG: 'PG / Co-living' }
-  const LISTING_NOUN: Record<ListingType, string> = { SALE: 'sale', RENT: 'rental', PG: 'PG' }
+  function handleListingTypeTab(t: ListingType) { setSelectedListingTypes([t]); setPage(0) }
+  function handleListingTypeToggle(t: ListingType) { setSelectedListingTypes(p => toggle(p, t)); setPage(0) }
+  function handleBhk(b: number) { setSelectedBhk(p => toggle(p, b)); setPage(0) }
+  function handleClear() { setSelectedBhk([]); setSelectedTypes([]); setSelectedFurnishings([]); setMinPrice(''); setMaxPrice(''); setPage(0) }
 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top search bar — sticky below the main navbar (h-16 = 4rem) */}
       <div className="bg-white border-b border-slate-100 sticky top-16 z-40 overflow-x-hidden">
-        {/* Listing type tabs — mobile only */}
+        {/* Listing type tabs — mobile only (quick single-select) */}
         <div className="md:hidden flex border-b border-slate-100">
           {(['SALE', 'RENT', 'PG'] as ListingType[]).map(t => (
-            <button key={t} onClick={() => handleListingType(t)}
+            <button key={t} onClick={() => handleListingTypeTab(t)}
               className={`flex-1 py-2.5 text-xs font-semibold transition-colors
-                ${listingType === t ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-400'}`}>
+                ${selectedListingTypes.length === 1 && selectedListingTypes[0] === t ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-400'}`}>
               {LISTING_TYPE_LABEL[t]}
             </button>
           ))}
         </div>
         <div className="px-4 py-3 flex gap-2 items-center">
-          <div className="flex-1 min-w-0"><SearchBar compact currentListingType={listingType} /></div>
+          <div className="flex-1 min-w-0"><SearchBar compact currentListingType={primaryListing} /></div>
           {/* Mobile filter button */}
           <button
             onClick={() => setFilterDrawerOpen(true)}
@@ -240,16 +255,16 @@ function PropertiesContent() {
             </div>
             <div className="overflow-y-auto flex-1 px-5 py-4">
               <FilterPanel
-                listingType={listingType}
+                selectedListingTypes={selectedListingTypes}
                 selectedBhk={selectedBhk}
-                selectedType={selectedType}
-                furnishing={furnishing}
+                selectedTypes={selectedTypes}
+                selectedFurnishings={selectedFurnishings}
                 minPrice={minPrice}
                 maxPrice={maxPrice}
-                onListingType={handleListingType}
+                onListingType={handleListingTypeToggle}
                 onBhk={handleBhk}
-                onPropertyType={t => { setSelectedType(t); setPage(0) }}
-                onFurnishing={f => { setFurnishing(f); setPage(0) }}
+                onPropertyType={t => { setSelectedTypes(p => toggle(p, t)); setPage(0) }}
+                onFurnishing={f => { setSelectedFurnishings(p => toggle(p, f)); setPage(0) }}
                 onMinPrice={setMinPrice}
                 onMaxPrice={setMaxPrice}
                 onApply={() => { fetchResults(); setFilterDrawerOpen(false) }}
@@ -266,7 +281,7 @@ function PropertiesContent() {
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm text-slate-500">
               {results
-                ? `${results.totalElements.toLocaleString()} ${LISTING_NOUN[listingType]} ${results.totalElements === 1 ? 'property' : 'properties'}`
+                ? `${results.totalElements.toLocaleString()} ${selectedListingTypes.length === 1 ? LISTING_NOUN[primaryListing] + ' ' : ''}${results.totalElements === 1 ? 'property' : 'properties'}`
                 : 'Searching...'}
             </span>
             <select value={sort} onChange={e => { setSort(e.target.value); setPage(0) }}
@@ -292,16 +307,16 @@ function PropertiesContent() {
           {/* Sidebar */}
           <aside className="hidden md:block w-56 shrink-0 bg-white border-r border-slate-100 p-4 min-h-screen">
             <FilterPanel
-              listingType={listingType}
+              selectedListingTypes={selectedListingTypes}
               selectedBhk={selectedBhk}
-              selectedType={selectedType}
-              furnishing={furnishing}
+              selectedTypes={selectedTypes}
+              selectedFurnishings={selectedFurnishings}
               minPrice={minPrice}
               maxPrice={maxPrice}
-              onListingType={handleListingType}
+              onListingType={handleListingTypeToggle}
               onBhk={handleBhk}
-              onPropertyType={t => { setSelectedType(t); setPage(0) }}
-              onFurnishing={f => { setFurnishing(f); setPage(0) }}
+              onPropertyType={t => { setSelectedTypes(p => toggle(p, t)); setPage(0) }}
+              onFurnishing={f => { setSelectedFurnishings(p => toggle(p, f)); setPage(0) }}
               onMinPrice={setMinPrice}
               onMaxPrice={setMaxPrice}
               onApply={fetchResults}
@@ -319,7 +334,7 @@ function PropertiesContent() {
               </div>
             ) : results?.content.length === 0 ? (
               <div className="text-center py-24">
-                <p className="text-slate-500 text-lg mb-2">No {LISTING_NOUN[listingType]} properties found</p>
+                <p className="text-slate-500 text-lg mb-2">No properties found</p>
                 <p className="text-slate-400 text-sm">Try adjusting your filters or switching to Buy / Rent / PG</p>
               </div>
             ) : (

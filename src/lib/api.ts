@@ -54,7 +54,9 @@ export const authApi = {
 
 // ── Properties ──────────────────────────────────────────────
 export const propertyApi = {
-  search:      (params: SearchParams)              => api.get<Page<PropertyCard>>('/properties', { params }),
+  // indexes:null → arrays serialize as repeated keys (listingTypes=A&listingTypes=B),
+  // which is what Spring binds to a List<Enum> on PropertySearchRequest.
+  search:      (params: SearchParams)              => api.get<Page<PropertyCard>>('/properties', { params, paramsSerializer: { indexes: null } }),
   getById:     (id: string)                        => api.get<PropertyDetail>(`/properties/${id}`),
   getMyById:   (id: string)                        => api.get<PropertyDetail>(`/properties/${id}/my`),
   getFeatured: ()                                  => api.get<PropertyCard[]>('/properties/featured'),
