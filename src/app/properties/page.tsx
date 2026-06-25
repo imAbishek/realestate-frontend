@@ -6,6 +6,7 @@ import { propertyApi } from '@/lib/api'
 import PropertyCard from '@/components/property/PropertyCard'
 import SearchBar from '@/components/search/SearchBar'
 import { buttonClasses } from '@/components/ui/Button'
+import Select from '@/components/ui/Select'
 import type { PropertyCard as PropertyCardType, ListingType, PropertyType, FurnishingStatus, Page } from '@/types'
 
 const PROPERTY_TYPES: { label: string; value: PropertyType }[] = [
@@ -91,9 +92,9 @@ function FilterPanel({
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">Budget</p>
         <div className="space-y-2">
           <input type="number" min="0" value={minPrice} onChange={e => onMinPrice(e.target.value)} placeholder="Min ₹"
-            className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-brand-400" />
+            className="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl outline-none text-slate-700 placeholder-slate-400 transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-50" />
           <input type="number" min="0" value={maxPrice} onChange={e => onMaxPrice(e.target.value)} placeholder="Max ₹"
-            className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-brand-400" />
+            className="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl outline-none text-slate-700 placeholder-slate-400 transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-50" />
         </div>
       </div>
 
@@ -284,13 +285,15 @@ function PropertiesContent() {
                 ? `${results.totalElements.toLocaleString()} ${selectedListingTypes.length === 1 ? LISTING_NOUN[primaryListing] + ' ' : ''}${results.totalElements === 1 ? 'property' : 'properties'}`
                 : 'Searching...'}
             </span>
-            <select value={sort} onChange={e => { setSort(e.target.value); setPage(0) }}
-              className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white outline-none shrink-0 text-slate-600">
-              <option value="createdAt,desc">Newest first</option>
-              <option value="price,asc">Price ↑</option>
-              <option value="price,desc">Price ↓</option>
-              <option value="viewsCount,desc">Popular</option>
-            </select>
+            <div className="shrink-0 w-36">
+              <Select value={sort} onChange={v => { setSort(v); setPage(0) }} size="sm" required aria-label="Sort properties"
+                options={[
+                  { value: 'createdAt,desc', label: 'Newest first' },
+                  { value: 'price,asc',      label: 'Price ↑' },
+                  { value: 'price,desc',     label: 'Price ↓' },
+                  { value: 'viewsCount,desc', label: 'Popular' },
+                ]} />
+            </div>
           </div>
           {activeFilters.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">

@@ -6,6 +6,8 @@ import { z } from 'zod'
 import toast from 'react-hot-toast'
 import { propertyApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import TextField from '@/components/ui/TextField'
+import Textarea from '@/components/ui/Textarea'
 
 const schema = z.object({
   message:    z.string().min(10, 'Please write at least 10 characters'),
@@ -46,17 +48,16 @@ export default function InquiryForm({ propertyId }: { propertyId: string }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-      <textarea {...register('message')} rows={3} placeholder="Write your message..."
-        className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400 resize-none placeholder-slate-400" />
+      <Textarea {...register('message')} rows={3} placeholder="Write your message..." />
       {errors.message && <p className="text-xs text-red-500">{errors.message.message}</p>}
       {/* Only render guest fields after Zustand has hydrated from localStorage.
           Without this guard, logged-in users see a flash of guest input fields
           because isLoggedIn is false until the persist middleware rehydrates. */}
       {_hasHydrated && !isLoggedIn && (
         <>
-          <input {...register('guestName')}  placeholder="Your name"         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400" />
-          <input {...register('guestPhone')} placeholder="Your phone number" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400" />
-          <input {...register('guestEmail')} placeholder="Your email (optional)" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400" />
+          <TextField {...register('guestName')}  placeholder="Your name" />
+          <TextField {...register('guestPhone')} placeholder="Your phone number" />
+          <TextField {...register('guestEmail')} placeholder="Your email (optional)" />
         </>
       )}
       <button type="submit" disabled={submitting}

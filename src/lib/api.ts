@@ -83,6 +83,14 @@ export const searchApi = {
   amenities:    ()               => api.get<{ id: string; name: string; category: string }[]>('/search/amenities'),
 }
 
+// ── Favorites (saved properties) ────────────────────────────
+export const favoritesApi = {
+  save:     (id: string)          => api.post<{ saved: boolean; alreadySaved: boolean }>(`/favorites/${id}`),
+  unsave:   (id: string)          => api.delete<{ saved: boolean; wasSaved: boolean }>(`/favorites/${id}`),
+  check:    (id: string)          => api.get<{ saved: boolean }>(`/favorites/${id}`),
+  listMine: (page = 0, size = 20) => api.get<Page<PropertyCard>>('/favorites', { params: { page, size } }),
+}
+
 // ── Site visit bookings ─────────────────────────────────────
 export const bookingsApi = {
   book:         (propertyId: string, data: BookSiteVisitRequest) => api.post<SiteVisitBooking>(`/properties/${propertyId}/site-visits`, data),

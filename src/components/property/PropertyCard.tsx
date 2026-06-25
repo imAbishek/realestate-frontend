@@ -1,15 +1,14 @@
 import Link from 'next/link'
-import { MapPin, Bed, Bath, Maximize2, BadgeCheck } from 'lucide-react'
-import type { PropertyCard, ListingType } from '@/types'
-import Badge, { type BadgeTone } from '@/components/ui/Badge'
+import { MapPin, Bed, Bath, Maximize2 } from 'lucide-react'
+import type { PropertyCard } from '@/types'
+import Badge from '@/components/ui/Badge'
 import ImagePlaceholder from '@/components/property/ImagePlaceholder'
+import HeartButton from '@/components/property/HeartButton'
 import { formatPrice, LISTING_TYPE_LABELS, bedroomLabel } from '@/lib/utils'
-
-const LISTING_TONE: Record<ListingType, BadgeTone> = { SALE: 'green', RENT: 'brand', PG: 'purple' }
 
 export default function PropertyCard({ property }: { property: PropertyCard }) {
   const { id, title, listingType, price, priceUnit, bedrooms, bathrooms, areaSqft,
-          localityName, cityName, primaryImageUrl, isFeatured, isVerified } = property
+          localityName, cityName, primaryImageUrl, isFeatured } = property
   return (
     <Link href={`/properties/${id}`}
       className="group bg-white rounded-2xl border border-slate-100 shadow-soft overflow-hidden hover:border-brand-200 hover:shadow-card transition-all duration-200 block">
@@ -21,14 +20,10 @@ export default function PropertyCard({ property }: { property: PropertyCard }) {
           <ImagePlaceholder label={false} />
         )}
         <div className="absolute top-3 left-3 flex gap-1.5">
-          <Badge tone={LISTING_TONE[listingType]}>{LISTING_TYPE_LABELS[listingType]}</Badge>
-          {isFeatured && <Badge tone="amber">Featured</Badge>}
+          <Badge tone="slate" className="bg-white text-slate-700 border-transparent shadow-sm">{LISTING_TYPE_LABELS[listingType]}</Badge>
+          {isFeatured && <Badge tone="accent" className="border-transparent shadow-sm">Featured</Badge>}
         </div>
-        {isVerified && (
-          <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow-sm">
-            <BadgeCheck size={16} className="text-brand-600" />
-          </div>
-        )}
+        <HeartButton propertyId={id} className="absolute top-3 right-3 w-8 h-8" />
       </div>
       <div className="p-4">
         <p className="text-lg font-semibold text-brand-600 mb-1">{formatPrice(price, priceUnit)}</p>

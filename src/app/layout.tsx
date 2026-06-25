@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import ConditionalShell from '@/components/layout/ConditionalShell'
 
-const inter = Inter({ subsets: ['latin'] })
+// Match the mobile Phase H aesthetic (mobile uses Plus Jakarta Sans).
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-jakarta',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://realestate-frontend-ten-lyart.vercel.app'),
@@ -26,7 +31,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-50 text-slate-900`}>
+      <body className={`${jakarta.variable} font-sans bg-slate-50 text-slate-900`}>
         <ConditionalShell>{children}</ConditionalShell>
         <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
       </body>

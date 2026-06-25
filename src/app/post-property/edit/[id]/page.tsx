@@ -1,12 +1,13 @@
 'use client'
 import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
 import { propertyApi, searchApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import Select from '@/components/ui/Select'
 import type { City, Locality, PropertyDetail, PropertyImage } from '@/types'
 import { Upload, X, AlertCircle } from 'lucide-react'
 import LocationPicker from '@/components/map/LocationPicker'
@@ -194,7 +195,6 @@ export default function EditPropertyPage() {
   }
 
   const inputCls  = "w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
-  const selectCls = inputCls + " bg-white"
 
   if (fetching) {
     return (
@@ -274,16 +274,19 @@ export default function EditPropertyPage() {
               </Field>
 
               <Field label="Property type" error={errors.propertyType?.message}>
-                <select {...register('propertyType')} className={selectCls}>
-                  <option value="APARTMENT">Apartment</option>
-                  <option value="INDEPENDENT_HOUSE">Independent house</option>
-                  <option value="VILLA">Villa</option>
-                  <option value="PLOT">Plot</option>
-                  <option value="BUILDER_FLOOR">Builder floor</option>
-                  <option value="COMMERCIAL_OFFICE">Commercial office</option>
-                  <option value="COMMERCIAL_SHOP">Commercial shop</option>
-                  <option value="PG_HOSTEL">PG / Hostel</option>
-                </select>
+                <Controller name="propertyType" control={control} render={({ field }) => (
+                  <Select required value={field.value ?? 'APARTMENT'} onChange={field.onChange} aria-label="Property type"
+                    options={[
+                      { value: 'APARTMENT', label: 'Apartment' },
+                      { value: 'INDEPENDENT_HOUSE', label: 'Independent house' },
+                      { value: 'VILLA', label: 'Villa' },
+                      { value: 'PLOT', label: 'Plot' },
+                      { value: 'BUILDER_FLOOR', label: 'Builder floor' },
+                      { value: 'COMMERCIAL_OFFICE', label: 'Commercial office' },
+                      { value: 'COMMERCIAL_SHOP', label: 'Commercial shop' },
+                      { value: 'PG_HOSTEL', label: 'PG / Hostel' },
+                    ]} />
+                )} />
               </Field>
 
               <Field label="Property title" error={errors.title?.message}>
@@ -300,17 +303,15 @@ export default function EditPropertyPage() {
           {step === 1 && (
             <>
               <Field label="City">
-                <select value={cityId} onChange={e => { setCityId(e.target.value); setValue('localityId', '') }} className={selectCls}>
-                  <option value="">Select city</option>
-                  {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <Select value={cityId} onChange={v => { setCityId(v); setValue('localityId', '') }}
+                  options={cities.map(c => ({ value: c.id, label: c.name }))} placeholder="Select city" aria-label="City" />
               </Field>
 
               <Field label="Locality / Area" error={errors.localityId?.message}>
-                <select {...register('localityId')} className={selectCls} disabled={!cityId}>
-                  <option value="">Select locality</option>
-                  {localities.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-                </select>
+                <Controller name="localityId" control={control} render={({ field }) => (
+                  <Select value={field.value ?? ''} onChange={field.onChange} disabled={!cityId}
+                    options={localities.map(l => ({ value: l.id, label: l.name }))} placeholder="Select locality" aria-label="Locality" />
+                )} />
               </Field>
 
               <Field label="Full address" error={errors.addressLine?.message}>
@@ -339,11 +340,14 @@ export default function EditPropertyPage() {
                   <input type="number" {...register('price', { valueAsNumber: true })} placeholder="e.g. 5000000" className={inputCls} />
                 </Field>
                 <Field label="Price unit">
-                  <select {...register('priceUnit')} className={selectCls}>
-                    <option value="TOTAL">Total price</option>
-                    <option value="PER_MONTH">Per month</option>
-                    <option value="PER_SQFT">Per sqft</option>
-                  </select>
+                  <Controller name="priceUnit" control={control} render={({ field }) => (
+                    <Select required value={field.value ?? 'TOTAL'} onChange={field.onChange} aria-label="Price unit"
+                      options={[
+                        { value: 'TOTAL', label: 'Total price' },
+                        { value: 'PER_MONTH', label: 'Per month' },
+                        { value: 'PER_SQFT', label: 'Per sqft' },
+                      ]} />
+                  )} />
                 </Field>
               </div>
 
@@ -354,14 +358,16 @@ export default function EditPropertyPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Bedrooms">
-                  <select {...register('bedrooms', { valueAsNumber: true })} className={selectCls}>
-                    {[0,1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n}</option>)}
-                  </select>
+                  <Controller name="bedrooms" control={control} defaultValue={0} render={({ field }) => (
+                    <Select required value={String(field.value ?? 0)} onChange={v => field.onChange(Number(v))} aria-label="Bedrooms"
+                      options={[0,1,2,3,4,5,6,7,8].map(n => ({ value: String(n), label: String(n) }))} />
+                  )} />
                 </Field>
                 <Field label="Bathrooms">
-                  <select {...register('bathrooms', { valueAsNumber: true })} className={selectCls}>
-                    {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
-                  </select>
+                  <Controller name="bathrooms" control={control} defaultValue={1} render={({ field }) => (
+                    <Select required value={String(field.value ?? 1)} onChange={v => field.onChange(Number(v))} aria-label="Bathrooms"
+                      options={[1,2,3,4,5].map(n => ({ value: String(n), label: String(n) }))} />
+                  )} />
                 </Field>
               </div>
 
@@ -370,11 +376,14 @@ export default function EditPropertyPage() {
               </Field>
 
               <Field label="Furnishing">
-                <select {...register('furnishing')} className={selectCls}>
-                  <option value="UNFURNISHED">Unfurnished</option>
-                  <option value="SEMI_FURNISHED">Semi-furnished</option>
-                  <option value="FULLY_FURNISHED">Fully furnished</option>
-                </select>
+                <Controller name="furnishing" control={control} render={({ field }) => (
+                  <Select required value={field.value ?? 'UNFURNISHED'} onChange={field.onChange} aria-label="Furnishing"
+                    options={[
+                      { value: 'UNFURNISHED', label: 'Unfurnished' },
+                      { value: 'SEMI_FURNISHED', label: 'Semi-furnished' },
+                      { value: 'FULLY_FURNISHED', label: 'Fully furnished' },
+                    ]} />
+                )} />
               </Field>
 
               {(listingType === 'RENT' || listingType === 'PG') && (

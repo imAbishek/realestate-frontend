@@ -1,17 +1,17 @@
 import Link from 'next/link'
-import { MapPin, ShieldCheck, HandCoins, CalendarCheck, Calculator, Star, Search, FileCheck2, KeyRound } from 'lucide-react'
+import { Sparkles, ShieldCheck, HandCoins, CalendarCheck, Calculator, Clock, Building2, MapPin, Home, Tag } from 'lucide-react'
 import { propertyApi, searchApi } from '@/lib/api'
-import PropertyCard from '@/components/property/PropertyCard'
 import SearchBar from '@/components/search/SearchBar'
+import FeaturedHeroCarousel from '@/components/property/FeaturedHeroCarousel'
+import PropertyCarousel from '@/components/property/PropertyCarousel'
 import Section from '@/components/ui/Section'
 import Stat from '@/components/ui/Stat'
-import { buttonClasses } from '@/components/ui/Button'
 import type { PropertyCard as PropertyCardType, City, Locality, Page } from '@/types'
 
 // ISR: re-render at most every 5 minutes. Without this the page is statically baked
 // ONCE at build time — and the Render free-tier backend sleeps after 15 idle minutes,
 // so build-time fetches time out and the page ships permanently with 0 listings,
-// "—" localities, and no Featured/Browse-by-locality sections.
+// "—" localities, and no Featured/Browse sections.
 export const revalidate = 300
 
 export default async function HomePage() {
@@ -40,7 +40,7 @@ export default async function HomePage() {
   const primaryCity = cities.find(c => c.slug === 'coimbatore') ?? cities[0]
   let localities: Locality[] = []
   if (primaryCity) {
-    try { localities = (await searchApi.localities(primaryCity.id)).data.slice(0, 8) } catch { localities = [] }
+    try { localities = (await searchApi.localities(primaryCity.id)).data } catch { localities = [] }
   }
 
   const services = [
@@ -50,116 +50,109 @@ export default async function HomePage() {
     { icon: Calculator,    title: 'EMI calculator',     desc: 'Plan your home loan upfront' },
   ]
 
+  const trust = [
+    { icon: ShieldCheck, title: 'Verified listings', desc: 'Documents checked' },
+    { icon: HandCoins,   title: 'Direct from owners', desc: 'Zero brokerage' },
+    { icon: Clock,       title: 'Save time & money', desc: 'Smart tools for you' },
+  ]
+
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-hero-gradient rounded-b-3xl px-4 pt-16 pb-28 text-center">
-        {/* Decorative blurred brand blobs — pure ornament, brand palette only */}
-        <div aria-hidden className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-brand-400/20 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-16 w-80 h-80 rounded-full bg-accent-400/20 blur-3xl" />
+      {/* Hero — two columns */}
+      <section className="bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 pt-12 pb-16 grid lg:grid-cols-[6fr_4fr] gap-10 lg:gap-12 items-center">
+          {/* Left: copy + search */}
+          <div>
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-700 bg-brand-50 rounded-full px-3 py-1.5 mb-6">
+              <Sparkles size={13} className="text-brand-600" />
+              New in {primaryCity?.name ?? 'Coimbatore'} — more cities coming soon
+            </span>
+            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.05] tracking-tight">
+              Find your<br />next <span className="italic text-brand-600">home</span><span className="text-accent-400">.</span>
+            </h1>
+            <p className="text-lg text-slate-600 mt-5 mb-8 max-w-md">
+              Verified listings, direct from owners — <span className="text-brand-600 font-medium">no brokerage</span>.
+            </p>
 
-        <div className="relative max-w-3xl mx-auto">
-          {/* Brand stays location-neutral; the launch city is a status line, not the identity */}
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-100 bg-white/10 border border-white/20 rounded-full px-3 py-1 mb-5 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-400 animate-pulse" />
-            Now live in {primaryCity?.name ?? 'Coimbatore'} — more cities soon
-          </span>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 leading-[1.1] tracking-tight">
-            Find your next home,<br className="hidden sm:block" /> <span className="text-accent-400">without the broker</span>
-          </h1>
-          <div className="w-12 h-[3px] rounded bg-accent-400 mx-auto mb-4" />
-          <p className="text-brand-100 text-lg mb-8">Verified listings, direct from owners — zero brokerage.</p>
-        </div>
-        <div className="relative max-w-2xl mx-auto"><SearchBar /></div>
+            <SearchBar />
 
-        {/* Social proof */}
-        <div className="relative mt-7 flex items-center justify-center gap-2 text-brand-100 text-xs">
-          <span className="flex">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={13} className="fill-accent-400 text-accent-400" />)}</span>
-          <span>Trusted by {totalListings ? `${totalListings.toLocaleString('en-IN')}+ ` : ''}owners &amp; buyers</span>
+            {/* Trust strip */}
+            <div className="flex flex-wrap gap-x-12 gap-y-6 mt-7">
+              {trust.map(t => (
+                <div key={t.title} className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-brand-50 flex items-center justify-center shrink-0">
+                    <t.icon className="w-6 h-6 text-brand-600" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-semibold text-slate-800">{t.title}</p>
+                    <p className="text-xs text-slate-500">{t.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: featured property showcase — auto-rotates through all featured */}
+          {featured.length > 0 && <FeaturedHeroCarousel properties={featured} />}
         </div>
       </section>
 
-      {/* Floating trust band */}
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="-mt-12 relative z-10 bg-white rounded-2xl shadow-card border border-slate-100 grid grid-cols-3 divide-x divide-slate-100 py-6">
-          <Stat value={`${totalListings.toLocaleString('en-IN')}${totalListings ? '+' : ''}`} label="Active listings" />
-          <Stat value={`${localities.length || '—'}`} label="Localities covered" />
-          <Stat value="₹0" label="Brokerage — ever" />
+      {/* Stats band */}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="-mt-2 mb-4 relative z-10 bg-white rounded-2xl shadow-card border border-slate-100 grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100 py-7">
+          <Stat icon={Building2} value={`${cities.length || '—'}${cities.length ? '+' : ''}`} label="Cities" />
+          <Stat icon={MapPin}    value={`${localities.length || '—'}`} label="Localities" />
+          <Stat icon={Home}      value={`${totalListings.toLocaleString('en-IN')}${totalListings ? '+' : ''}`} label="Properties" />
+          <Stat icon={Tag}       value="₹0" label="Brokerage" />
         </div>
       </div>
 
-      {/* How it works */}
-      <Section title="How PropFind works" subtitle="Three steps from search to keys">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { icon: Search,     step: '01', title: 'Search & filter', desc: 'Pick a city, set your budget and filters, and browse verified listings.' },
-            { icon: FileCheck2, step: '02', title: 'Connect directly', desc: 'Message owners, book a site visit, and ask anything — no middleman.' },
-            { icon: KeyRound,   step: '03', title: 'Move in',         desc: 'Close the deal directly with the owner and save on brokerage.' },
-          ].map(s => (
-            <div key={s.step} className="relative bg-white rounded-2xl border border-slate-100 shadow-soft p-6 hover:border-brand-200 transition-colors">
-              <span className="absolute top-5 right-5 text-3xl font-bold text-slate-100">{s.step}</span>
-              <div className="w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center mb-4">
+      {/* Browse properties */}
+      {featured.length > 0 && (
+        <Section title="Browse properties" subtitle="Hand-picked listings from owners"
+          action={<Link href="/properties" className="text-sm font-medium text-brand-600 hover:underline">View all properties →</Link>}>
+          <PropertyCarousel properties={featured} />
+        </Section>
+      )}
+
+      {/* Why PropFind */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-slate-900">Why PropFind?</h2>
+          <p className="text-sm text-slate-500 mt-1">Built for owners and buyers — not brokers</p>
+          <div className="w-10 h-[3px] rounded bg-accent-400 mx-auto mt-3" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {services.map(s => (
+            <div key={s.title} className="flex items-start gap-3 bg-white rounded-2xl border border-slate-100 shadow-soft p-5">
+              <div className="w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center shrink-0">
                 <s.icon className="w-5 h-5 text-brand-600" />
               </div>
-              <p className="font-semibold text-slate-800">{s.title}</p>
-              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* Browse by locality */}
-      {localities.length > 0 && (
-        <Section title="Browse by locality" subtitle={`Popular areas in ${primaryCity?.name ?? 'Coimbatore'}`}
-          action={<Link href="/properties" className="text-sm font-medium text-brand-600 hover:underline">View all →</Link>}>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {localities.map(loc => (
-              <Link key={loc.id} href={`/properties?citySlug=${primaryCity?.slug}&localityId=${loc.id}`}
-                className="bg-white rounded-2xl border border-slate-100 shadow-soft p-5 hover:border-brand-200 transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center mb-3">
-                  <MapPin className="w-5 h-5 text-brand-600" />
-                </div>
-                <p className="font-medium text-slate-800 text-sm group-hover:text-brand-600 transition-colors">{loc.name}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{primaryCity?.name}</p>
-              </Link>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* Featured */}
-      {featured.length > 0 && (
-        <Section surface="tint" title="Featured properties" subtitle="Hand-picked listings worth a look"
-          action={<Link href="/properties?featuredOnly=true" className="text-sm font-medium text-brand-600 hover:underline">View all →</Link>}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featured.map(p => <PropertyCard key={p.id} property={p} />)}
-          </div>
-        </Section>
-      )}
-
-      {/* Why choose us */}
-      <Section title="Why PropFind" subtitle="Built for owners and buyers — not brokers">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {services.map(s => (
-            <div key={s.title} className="bg-white rounded-2xl border border-slate-100 shadow-soft p-5">
-              <div className="w-11 h-11 rounded-xl bg-accent-50 flex items-center justify-center mb-3">
-                <s.icon className="w-5 h-5 text-accent-400" />
+              <div>
+                <p className="font-semibold text-slate-800 text-sm">{s.title}</p>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">{s.desc}</p>
               </div>
-              <p className="font-semibold text-slate-800 text-sm">{s.title}</p>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
-      </Section>
+      </section>
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="bg-hero-gradient rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-2">Own a property? List it for free</h2>
-            <p className="text-brand-100 text-sm">Reach buyers and renters in your city. Get inquiries directly — no brokerage.</p>
+        <div className="relative overflow-hidden bg-hero-gradient rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Decorative building line-art */}
+          <svg aria-hidden viewBox="0 0 200 120" className="pointer-events-none absolute right-6 bottom-0 h-28 w-auto text-white/15" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="10" y="50" width="40" height="70" />
+            <rect x="60" y="25" width="45" height="95" />
+            <rect x="115" y="60" width="35" height="60" />
+            <rect x="158" y="40" width="32" height="80" />
+            <path d="M18 60h8M34 60h8M18 74h8M34 74h8M18 88h8M34 88h8M70 38h10M90 38h6M70 56h10M90 56h6M70 74h10M90 74h6M124 72h6M138 72h6M124 90h6M138 90h6M166 54h6M180 54h4M166 72h6M180 72h4" />
+          </svg>
+          <div className="relative">
+            <h2 className="text-2xl font-bold text-white mb-2">Own a property? List it for free</h2>
+            <p className="text-brand-100 text-sm max-w-md">Reach buyers and renters in your city. Get inquiries directly — no brokerage.</p>
           </div>
-          <Link href="/post-property" className={buttonClasses('secondary', 'lg', 'text-brand-700')}>
+          <Link href="/post-property" className="relative shrink-0 inline-flex items-center gap-2 bg-white text-brand-700 font-medium text-sm px-7 py-3 rounded-xl hover:bg-slate-50 transition-colors">
             Post your property →
           </Link>
         </div>

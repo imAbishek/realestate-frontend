@@ -4,7 +4,10 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  /* scroll-padding-top reserves the sticky navbar height (h-16 = 4rem) so any
+     auto-scroll (focus, hash anchor, Next route change) never tucks content
+     under the fixed navbar — fixes the property-detail image hiding on load. */
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
   body { @apply antialiased; }
 }
 

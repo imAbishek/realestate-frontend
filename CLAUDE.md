@@ -28,6 +28,7 @@ src/
 │   │   ├── page.tsx                        # Create listing (4-step form)
 │   │   └── edit/[id]/page.tsx              # Edit existing listing
 │   ├── dashboard/page.tsx                  # User's own listings (Client)
+│   ├── saved/page.tsx                       # Saved/favorited listings (Client) — favoritesApi.listMine
 │   └── admin/
 │       ├── layout.tsx                      # Dark sidebar — hides Navbar/Footer
 │       ├── page.tsx                        # Overview KPIs
@@ -40,13 +41,16 @@ src/
 │   │   ├── Navbar.tsx
 │   │   └── Footer.tsx
 │   ├── property/
-│   │   ├── PropertyCard.tsx
+│   │   ├── PropertyCard.tsx                 # grid card — HeartButton + listing/featured badges
+│   │   ├── FeaturedHeroCard.tsx             # home hero showcase — photo fills card, detail panel overlaid
+│   │   ├── PropertyCarousel.tsx             # dependency-free scroll-snap + arrow carousel (home "Browse")
+│   │   ├── HeartButton.tsx                  # save/unsave toggle (favoritesApi, auth-guarded, optimistic)
 │   │   └── InquiryForm.tsx
 │   └── search/
 │       └── SearchBar.tsx
 ├── lib/
 │   ├── api.ts                              # ALL API calls — authApi, propertyApi,
-│   │                                         searchApi, adminApi
+│   │                                         searchApi, favoritesApi, bookingsApi, adminApi
 │   └── utils.ts                            # formatPrice, bedroomLabel, timeAgo,
 │                                             LISTING_TYPE_LABELS, listingTypeBadgeClass
 ├── store/
@@ -65,6 +69,9 @@ src/
 - `LoginRequest` uses `identifier` (not `email`) — accepts email or 10-digit Indian mobile number
 - `RegisterRequest` has no `role` field — backend defaults all new users to BUYER
 - `next.config.js` reads `NEXT_PUBLIC_MINIO_HOST` / `NEXT_PUBLIC_MINIO_PROTOCOL` / `NEXT_PUBLIC_MINIO_PORT` to whitelist the prod image CDN hostname for `next/image`
+- **Font:** Plus Jakarta Sans via `next/font/google` in `layout.tsx` (`--font-jakarta` → Tailwind `fontFamily.sans`). Use `font-*` utilities normally; do not re-import Inter.
+- **Navbar/Footer are navy (`bg-brand-900`) site-wide** via `ConditionalShell` (admin routes keep their own shell). The navbar bell is decorative (no notifications backend yet).
+- **Favorites:** backend `/favorites` endpoints already exist; the web wires them through `favoritesApi` (`save`/`unsave`/`check`/`listMine`) → `HeartButton` (on cards + featured hero) and the `/saved` page. Heart requires login (redirects to `/auth/login` otherwise).
 - **Google Maps** (`@vis.gl/react-google-maps`) lives in `src/components/map/` — `LocationPicker.tsx` (post/edit forms: Places Autocomplete + draggable pin → sets `latitude`/`longitude`/`addressLine`) and `PropertyLocationMap.tsx` (detail page: read-only). Reads `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`; both render a graceful fallback (no crash) when the key is unset. Multi-select search params (`listingTypes`/`propertyTypes`/`furnishings`) are sent as repeated query keys via `paramsSerializer: { indexes: null }` in `propertyApi.search` — Spring binds them to `List<Enum>`.
 
 ## Auth guard pattern (use in every protected page)
